@@ -1,0 +1,70 @@
+services:
+  db:
+    image: postgres:alpine
+    env_file:
+      - .env
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
+      interval: 10s
+      timeout: 2s
+      retries: 5
+    volumes:
+      - postgres-db:/var/lib/postgresql
+    ports:
+      - "5432:5432"
+    networks:
+      - net
+
+  backend:
+    build:
+      context: .
+      target: development
+    command: npm run start:dev
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - net
+
+  seed:
+    build:
+      context: .
+      target: development
+    command: npm run seed
+    env_file:
+      - .env
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - net
+
+  frontend:
+    build:
+      context: ./frontend
+      target: development
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./frontend:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - net
+
+networks:
+  net:
+
+volumes:
+  postgres-db:

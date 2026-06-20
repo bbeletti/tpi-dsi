@@ -1,0 +1,142 @@
+<div class="view-container">
+  <header class="view-header">
+    <div class="header-title">
+      <h1>Clientes</h1>
+      <p>Administra la cartera de clientes y sus ubicaciones</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" (click)="openNewForm()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        Nuevo Cliente
+      </button>
+    </div>
+  </header>
+
+  <!-- Form Panel overlay / Side Panel -->
+  <div class="modal-overlay" *ngIf="showForm()">
+    <div class="modal-card modal-large">
+      <div class="modal-header">
+        <h2>{{ formTitle() }}</h2>
+        <button class="btn-close" (click)="closeForm()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <form (submit)="saveCliente(); $event.preventDefault()" class="modal-form">
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label for="nombre">Nombre Completo / Razón Social</label>
+            <input type="text" id="nombre" [ngModel]="nombre()" (ngModelChange)="nombre.set($event)" name="nombre" class="form-control" placeholder="Ej: JUAN PEREZ" required>
+          </div>
+          <div class="form-group">
+            <label for="documento">Nº Documento / CUIT</label>
+            <input type="number" id="documento" [ngModel]="numeroDocumento()" (ngModelChange)="numeroDocumento.set($event)" name="documento" class="form-control" placeholder="Ej: 20405006001">
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label for="celular">Celular</label>
+            <input type="number" id="celular" [ngModel]="celular()" (ngModelChange)="celular.set($event)" name="celular" class="form-control" placeholder="Ej: 3416555555">
+          </div>
+          <div class="form-group">
+            <label for="telefono">Teléfono Fijo</label>
+            <input type="number" id="telefono" [ngModel]="telefono()" (ngModelChange)="telefono.set($event)" name="telefono" class="form-control" placeholder="Ej: 4242424">
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label for="email">E-mail</label>
+            <input type="email" id="email" [ngModel]="email()" (ngModelChange)="email.set($event)" name="email" class="form-control" placeholder="juan@ejemplo.com">
+          </div>
+          <div class="form-group">
+            <label for="direccion">Dirección</label>
+            <input type="text" id="direccion" [ngModel]="direccion()" (ngModelChange)="direccion.set($event)" name="direccion" class="form-control" placeholder="Ej: Av. Pellegrini 1234">
+          </div>
+        </div>
+
+        <div class="form-grid-3">
+          <div class="form-group">
+            <label for="barrio">Barrio</label>
+            <select id="barrio" [ngModel]="barrioId()" (ngModelChange)="barrioId.set($event)" name="barrioId" class="form-control">
+              <option [value]="null">-- Seleccionar --</option>
+              <option *ngFor="let b of barrios()" [value]="b.id">{{ b.nombre }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="localidad">Localidad</label>
+            <select id="localidad" [ngModel]="localidadId()" (ngModelChange)="localidadId.set($event)" name="localidadId" class="form-control">
+              <option [value]="null">-- Seleccionar --</option>
+              <option *ngFor="let l of localidades()" [value]="l.id">{{ l.nombre }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="provincia">Provincia</label>
+            <select id="provincia" [ngModel]="provinciaId()" (ngModelChange)="provinciaId.set($event)" name="provinciaId" class="form-control">
+              <option [value]="null">-- Seleccionar --</option>
+              <option *ngFor="let p of provincias()" [value]="p.id">{{ p.nombre }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeForm()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Lista de Clientes -->
+  <div class="table-card glass-panel">
+    <div class="table-container" *ngIf="clientes().length > 0; else emptyClientes">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Documento/CUIT</th>
+            <th>Contacto</th>
+            <th>Ubicación</th>
+            <th class="text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let cli of clientes()">
+            <td>#{{ cli.id }}</td>
+            <td class="text-bold">{{ cli.nombre }}</td>
+            <td>{{ cli.numero_documento || 'No Registrado' }}</td>
+            <td>
+              <div class="contact-info-list">
+                <span *ngIf="cli.email"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg> {{ cli.email }}</span>
+                <span *ngIf="cli.celular || cli.telefono"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg> {{ cli.celular || cli.telefono }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="location-badge-list">
+                <span class="badge badge-info" *ngIf="cli.direccion">{{ cli.direccion }}</span>
+                <span class="badge badge-purple" *ngIf="cli.barrio">{{ cli.barrio?.nombre }}</span>
+                <span class="badge badge-purple" *ngIf="cli.localidad">{{ cli.localidad?.nombre }}</span>
+              </div>
+            </td>
+            <td class="text-right actions-cell">
+              <button class="btn btn-icon btn-edit" (click)="openEditForm(cli)" title="Editar">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              </button>
+              <button class="btn btn-icon btn-delete" (click)="deleteCliente(cli.id)" title="Eliminar">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ng-template #emptyClientes>
+      <div class="empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+        <p>No se encontraron clientes registrados.</p>
+        <button class="btn btn-secondary" (click)="openNewForm()">Agregar Cliente</button>
+      </div>
+    </ng-template>
+  </div>
+</div>

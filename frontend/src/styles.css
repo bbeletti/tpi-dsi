@@ -1,0 +1,887 @@
+/* Importar Fuente Roboto */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+/* Variables y Tokens de Diseño de Material Design 3 (M3) Light Theme */
+:root {
+  --font-family: 'Roboto', sans-serif;
+  
+  /* Colores del Sistema M3 */
+  --md-sys-color-primary: #6750A4;
+  --md-sys-color-on-primary: #FFFFFF;
+  --md-sys-color-primary-container: #E8DEF8;
+  --md-sys-color-on-primary-container: #21005D;
+  
+  --md-sys-color-secondary: #625B71;
+  --md-sys-color-on-secondary: #FFFFFF;
+  --md-sys-color-secondary-container: #E8DEF8;
+  
+  --md-sys-color-surface: #FEF7FF;
+  --md-sys-color-on-surface: #1D1B20;
+  
+  --md-sys-color-surface-container-low: #F7F2FA;
+  --md-sys-color-surface-container: #F3EDF7;
+  --md-sys-color-surface-container-high: #ECE6F0;
+  
+  --md-sys-color-surface-card: #FFFFFF;
+  
+  --md-sys-color-outline: #79747E;
+  --md-sys-color-outline-variant: #E7E0EC;
+  
+  --md-sys-color-error: #B3261E;
+  --md-sys-color-on-error: #FFFFFF;
+  --md-sys-color-error-container: #F9DEDC;
+  --md-sys-color-on-error-container: #410E0B;
+
+  --md-sys-color-success: #386A20;
+  --md-sys-color-on-success: #FFFFFF;
+  --md-sys-color-success-container: #B8F397;
+  
+  /* Elevaciones de Material 3 */
+  --md-elevation-1: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+  --md-elevation-2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+  --md-elevation-3: 0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px 0px rgba(0, 0, 0, 0.30);
+  
+  /* Esquinas Redondeadas M3 */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 28px;
+  --radius-full: 9999px;
+  
+  /* Animaciones M3 */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Reset Global */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar Estilo M3 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--md-sys-color-outline-variant);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--md-sys-color-outline);
+}
+
+/* Estructura del Layout Principal */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--md-sys-color-surface);
+}
+
+/* Sidebar Drawer de Material 3 */
+.app-sidebar {
+  width: 280px;
+  background-color: var(--md-sys-color-surface-container);
+  border-right: none;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 36px;
+  padding-left: 12px;
+}
+
+.brand-logo {
+  width: 40px;
+  height: 40px;
+  background-color: var(--md-sys-color-primary);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--md-sys-color-on-primary);
+  box-shadow: var(--md-elevation-1);
+}
+
+.brand-logo svg {
+  width: 24px;
+  height: 24px;
+}
+
+.sidebar-brand h2 {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  color: var(--md-sys-color-on-surface);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-grow: 1;
+}
+
+/* Navigation items in M3 */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  color: var(--md-sys-color-secondary);
+  text-decoration: none;
+  border-radius: var(--radius-full);
+  font-size: 14px;
+  font-weight: 500;
+  transition: var(--transition-fast);
+}
+
+.nav-item:hover {
+  background-color: rgba(103, 80, 164, 0.08);
+  color: var(--md-sys-color-on-surface);
+}
+
+.nav-item.active {
+  color: var(--md-sys-color-on-primary-container);
+  background-color: var(--md-sys-color-primary-container);
+  font-weight: 700;
+}
+
+.nav-icon {
+  display: flex;
+  align-items: center;
+  color: inherit;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+/* Área de Contenido Principal */
+.app-main {
+  flex-grow: 1;
+  padding: 40px;
+  overflow-y: auto;
+  background-color: var(--md-sys-color-surface);
+}
+
+/* Encabezados de Vistas */
+.view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.header-title h1 {
+  font-size: 32px;
+  font-weight: 400; /* MD3 titles are typically cleaner, lighter weight */
+  color: var(--md-sys-color-on-surface);
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+}
+
+.header-title p {
+  color: var(--md-sys-color-secondary);
+  font-size: 14px;
+}
+
+/* Botones M3 (Pill-shaped) */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 24px;
+  height: 40px;
+  border: none;
+  border-radius: var(--radius-full);
+  font-family: var(--font-family);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  text-decoration: none;
+}
+
+.btn-sm {
+  height: 32px;
+  padding: 6px 16px;
+  font-size: 13px;
+}
+
+.btn-primary {
+  background-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  box-shadow: var(--md-elevation-1);
+}
+
+.btn-primary:hover {
+  box-shadow: var(--md-elevation-2);
+  filter: brightness(0.95);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: var(--md-elevation-1);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--md-sys-color-primary);
+  border: 1px solid var(--md-sys-color-outline);
+}
+
+.btn-secondary:hover {
+  background-color: rgba(103, 80, 164, 0.08);
+}
+
+.btn-link {
+  color: var(--md-sys-color-primary);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px;
+  transition: var(--transition-fast);
+  padding: 8px 12px;
+  border-radius: var(--radius-full);
+}
+
+.btn-link:hover {
+  background-color: rgba(103, 80, 164, 0.08);
+}
+
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  border: none;
+  color: var(--md-sys-color-secondary);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.btn-icon svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+  stroke: currentColor;
+  fill: none;
+}
+
+.btn-edit:hover {
+  color: var(--md-sys-color-primary);
+  background-color: rgba(103, 80, 164, 0.08);
+}
+
+.btn-delete:hover {
+  color: var(--md-sys-color-error);
+  background-color: rgba(179, 38, 30, 0.08);
+}
+
+/* Tarjetas de Estadísticas M3 (Level 1 Elevation) */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.stat-card {
+  background-color: var(--md-sys-color-surface-card);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  box-shadow: var(--md-elevation-1);
+  transition: var(--transition-normal);
+}
+
+.stat-card:hover {
+  box-shadow: var(--md-elevation-2);
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-revenue { border-left: 4px solid var(--md-sys-color-primary); }
+.card-sales { border-left: 4px solid var(--md-sys-color-secondary); }
+.card-products { border-left: 4px solid var(--md-sys-color-primary); }
+.card-users { border-left: 4px solid var(--md-sys-color-success); }
+
+.card-revenue .stat-icon { color: var(--md-sys-color-primary); background-color: var(--md-sys-color-primary-container); }
+.card-sales .stat-icon { color: var(--md-sys-color-secondary); background-color: var(--md-sys-color-secondary-container); }
+.card-products .stat-icon { color: var(--md-sys-color-primary); background-color: var(--md-sys-color-primary-container); }
+.card-users .stat-icon { color: var(--md-sys-color-success); background-color: var(--md-sys-color-success-container); }
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: var(--md-sys-color-secondary);
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--md-sys-color-on-surface);
+}
+
+/* Grilla Dashboard */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 32px;
+}
+
+.dashboard-section {
+  background-color: var(--md-sys-color-surface-card);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: var(--md-elevation-1);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.section-header h2 {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface);
+}
+
+/* Accesos Rápidos */
+.quick-links {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.quick-link-card {
+  padding: 16px;
+  background-color: var(--md-sys-color-surface-container-low);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  position: relative;
+  transition: var(--transition-fast);
+}
+
+.quick-link-card:hover {
+  background-color: var(--md-sys-color-surface-container-high);
+  transform: translateX(4px);
+}
+
+.quick-link-card h3 {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: var(--md-sys-color-primary);
+}
+
+.quick-link-card p {
+  font-size: 12px;
+  color: var(--md-sys-color-secondary);
+}
+
+.arrow-icon {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--md-sys-color-secondary);
+  font-size: 16px;
+}
+
+/* Contenedores de Tablas y Paneles */
+.glass-panel {
+  background-color: var(--md-sys-color-surface-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--md-elevation-1);
+}
+
+.table-card {
+  padding: 24px;
+}
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Estilos de Tabla */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.data-table th {
+  padding: 16px;
+  color: var(--md-sys-color-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.data-table td {
+  padding: 16px;
+  font-size: 14px;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  color: var(--md-sys-color-on-surface);
+  vertical-align: middle;
+}
+
+.data-table tbody tr {
+  transition: var(--transition-fast);
+}
+
+.data-table tbody tr:hover {
+  background-color: rgba(103, 80, 164, 0.04);
+}
+
+.text-right { text-align: right; }
+.text-bold { font-weight: 500; }
+.text-accent { color: var(--md-sys-color-primary); font-weight: 700; }
+
+.actions-cell {
+  text-align: right;
+}
+
+.actions-wrapper {
+  display: inline-flex;
+  justify-content: flex-end;
+  gap: 8px;
+  vertical-align: middle;
+}
+
+
+/* Modales y Paneles Flotantes (Diseño de Drawer Deslizante) */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end;
+  align-items: stretch;
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 500px;
+  background-color: var(--md-sys-color-surface-card);
+  border-left: 1px solid var(--md-sys-color-outline-variant);
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
+  border-radius: var(--radius-xl) 0 0 var(--radius-xl);
+  padding: 32px 24px;
+  box-shadow: var(--md-elevation-3);
+  height: 100vh;
+  max-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  animation: drawerSlideIn 0.25s cubic-bezier(0.2, 0, 0, 1);
+  overflow-y: hidden;
+}
+
+.modal-card.modal-large {
+  max-width: 850px;
+}
+
+@keyframes drawerSlideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  flex-shrink: 0;
+}
+
+.modal-header h2 {
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--md-sys-color-primary);
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  color: var(--md-sys-color-secondary);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.btn-close:hover {
+  color: var(--md-sys-color-on-surface);
+  transform: rotate(90deg);
+}
+
+/* Formularios M3 Outlined */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.form-group label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--md-sys-color-secondary);
+  padding-left: 4px;
+}
+
+.form-control {
+  font-family: var(--font-family);
+  background-color: var(--md-sys-color-surface-card);
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--radius-xs);
+  padding: 12px 16px;
+  color: var(--md-sys-color-on-surface);
+  font-size: 15px;
+  outline: none;
+  transition: var(--transition-fast);
+}
+
+.form-control:focus {
+  border-color: var(--md-sys-color-primary);
+  border-width: 2px;
+  padding: 11px 15px; /* keep offset aligned */
+}
+
+select.form-control option {
+  background-color: var(--md-sys-color-surface-card);
+  color: var(--md-sys-color-on-surface);
+}
+
+.form-control::placeholder {
+  color: var(--md-sys-color-outline-variant);
+}
+
+.checkbox-group {
+  margin-top: 4px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--md-sys-color-on-surface);
+}
+
+.checkbox-label input {
+  accent-color: var(--md-sys-color-primary);
+  width: 18px;
+  height: 18px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--md-sys-color-outline-variant);
+  background-color: var(--md-sys-color-surface-card);
+  flex-shrink: 0;
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.badge-info {
+  background-color: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+}
+
+.badge-purple {
+  background-color: var(--md-sys-color-success-container);
+  color: var(--md-sys-color-on-success);
+  background: var(--md-sys-color-primary);
+}
+
+/* Constructor de Recetas / Detalles */
+.recipe-builder-section {
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  background-color: var(--md-sys-color-surface-container-low);
+}
+
+.recipe-builder-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.recipe-builder-header h3 {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface);
+}
+
+.recipe-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.recipe-item-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: 12px;
+  align-items: center;
+  background-color: var(--md-sys-color-surface-card);
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.sale-item-row {
+  grid-template-columns: 2.2fr 1.4fr 1.2fr auto;
+}
+
+.recipe-item-row .item-quantity {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.recipe-item-row .item-quantity input {
+  padding-right: 70px;
+}
+
+.recipe-item-row .unit-label {
+  position: absolute;
+  right: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--md-sys-color-secondary);
+}
+
+.recipe-empty {
+  padding: 24px;
+  text-align: center;
+  color: var(--md-sys-color-secondary);
+  font-size: 13px;
+  border: 1px dashed var(--md-sys-color-outline);
+  border-radius: var(--radius-sm);
+}
+
+/* Calculadora dinámica flotante en forms */
+.live-calculator {
+  margin-top: 16px;
+  display: flex;
+  gap: 16px;
+}
+
+.calc-box {
+  flex: 1;
+  background-color: var(--md-sys-color-surface-container-low);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.calc-box.calc-accent {
+  background-color: var(--md-sys-color-primary-container);
+  border-color: rgba(103, 80, 164, 0.2);
+}
+
+.calc-box.full-width {
+  flex: none;
+  width: 100%;
+}
+
+.calc-label {
+  font-size: 12px;
+  color: var(--md-sys-color-secondary);
+}
+
+.calc-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--md-sys-color-primary);
+}
+
+/* Tags de ingredientes en lista de productos */
+.recipe-tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.recipe-tag {
+  background-color: var(--md-sys-color-surface-container-low);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--radius-xs);
+  padding: 2px 8px;
+  font-size: 11px;
+  color: var(--md-sys-color-secondary);
+}
+
+/* Ventas Detail Tag */
+.sale-details-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sale-detail-tag {
+  font-size: 12px;
+  color: var(--md-sys-color-secondary);
+}
+
+.sale-detail-tag::before {
+  content: "•";
+  margin-right: 6px;
+  color: var(--md-sys-color-primary);
+}
+
+.item-price-info {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  min-width: 100px;
+}
+
+.subtotal-label {
+  color: var(--md-sys-color-secondary);
+}
+
+.subtotal-value {
+  color: var(--md-sys-color-primary);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+/* Estados Vacíos */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  text-align: center;
+  color: var(--md-sys-color-secondary);
+  gap: 16px;
+}
+
+.empty-state svg {
+  color: var(--md-sys-color-outline-variant);
+}
+
+.empty-state p {
+  font-size: 14px;
+}
+
+.contact-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.contact-info-list span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--md-sys-color-secondary);
+}
+
+.location-badge-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}

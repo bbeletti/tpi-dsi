@@ -1,3 +1,4 @@
+name: tpi-dsi
 services:
   db:
     image: postgres:alpine

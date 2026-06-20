@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Ingrediente, Producto, Cliente, Venta, Barrio, Localidad, Provincia, UnidadMedida } from '../models';
+import { Bolsin, CM, Empleado, Usuario, Sesion, EstadoBolsin, Rol, SeguimientoResponse } from '../models';
 
 @Injectable({
   providedIn: 'root'
@@ -11,100 +11,53 @@ export class ApiService {
 
   constructor(private http: HttpClient) {}
 
-  // Ingredientes
-  getIngredientes(): Observable<Ingrediente[]> {
-    return this.http.get<Ingrediente[]>(`${this.apiUrl}/ingredientes`);
+  // Bolsines
+  getBolsines(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/bolsines`);
   }
 
-  getIngrediente(id: number): Observable<Ingrediente> {
-    return this.http.get<Ingrediente>(`${this.apiUrl}/ingredientes/${id}`);
+  // CMs
+  getCMs(): Observable<CM[]> {
+    return this.http.get<CM[]>(`${this.apiUrl}/cms`);
   }
 
-  createIngrediente(data: Partial<Ingrediente>): Observable<Ingrediente> {
-    return this.http.post<Ingrediente>(`${this.apiUrl}/ingredientes`, data);
+  // Empleados
+  getEmpleados(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/empleados`);
   }
 
-  updateIngrediente(id: number, data: Partial<Ingrediente>): Observable<Ingrediente> {
-    return this.http.put<Ingrediente>(`${this.apiUrl}/ingredientes/${id}`, data);
+  // Usuarios
+  getUsuarios(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/usuarios`);
   }
 
-  deleteIngrediente(id: number): Observable<{ success: boolean }> {
-    return this.http.delete<{ success: boolean }>(`${this.apiUrl}/ingredientes/${id}`);
+  // Sesiones
+  getSesiones(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/sesiones`);
   }
 
-  // Productos
-  getProductos(): Observable<Producto[]> {
-    return this.http.get<Producto[]>(`${this.apiUrl}/productos`);
+  // Estados
+  getEstados(): Observable<EstadoBolsin[]> {
+    return this.http.get<EstadoBolsin[]>(`${this.apiUrl}/estados`);
   }
 
-  getProducto(id: number): Observable<Producto> {
-    return this.http.get<Producto>(`${this.apiUrl}/productos/${id}`);
+  // Roles
+  getRoles(): Observable<Rol[]> {
+    return this.http.get<Rol[]>(`${this.apiUrl}/roles`);
   }
 
-  createProducto(data: Partial<Producto>): Observable<Producto> {
-    return this.http.post<Producto>(`${this.apiUrl}/productos`, data);
+  // Seguimiento
+  consultarSeguimiento(): Observable<SeguimientoResponse> {
+    return this.http.get<SeguimientoResponse>(`${this.apiUrl}/seguimiento/consultar`);
   }
 
-  updateProducto(id: number, data: Partial<Producto>): Observable<Producto> {
-    return this.http.put<Producto>(`${this.apiUrl}/productos/${id}`, data);
-  }
-
-  deleteProducto(id: number): Observable<{ success: boolean }> {
-    return this.http.delete<{ success: boolean }>(`${this.apiUrl}/productos/${id}`);
-  }
-
-  // Clientes
-  getClientes(): Observable<Cliente[]> {
-    return this.http.get<Cliente[]>(`${this.apiUrl}/clientes`);
-  }
-
-  getCliente(id: number): Observable<Cliente> {
-    return this.http.get<Cliente>(`${this.apiUrl}/clientes/${id}`);
-  }
-
-  createCliente(data: Partial<Cliente>): Observable<Cliente> {
-    return this.http.post<Cliente>(`${this.apiUrl}/clientes`, data);
-  }
-
-  updateCliente(id: number, data: Partial<Cliente>): Observable<Cliente> {
-    return this.http.put<Cliente>(`${this.apiUrl}/clientes/${id}`, data);
-  }
-
-  deleteCliente(id: number): Observable<{ success: boolean }> {
-    return this.http.delete<{ success: boolean }>(`${this.apiUrl}/clientes/${id}`);
-  }
-
-  // Ventas
-  getVentas(): Observable<Venta[]> {
-    return this.http.get<Venta[]>(`${this.apiUrl}/ventas`);
-  }
-
-  getVenta(id: number): Observable<Venta> {
-    return this.http.get<Venta>(`${this.apiUrl}/ventas/${id}`);
-  }
-
-  createVenta(data: { fecha: string; cliente_id: number; detalle: { producto_id: number; cantidad: number; }[] }): Observable<Venta> {
-    return this.http.post<Venta>(`${this.apiUrl}/ventas`, data);
-  }
-
-  deleteVenta(id: number): Observable<{ success: boolean }> {
-    return this.http.delete<{ success: boolean }>(`${this.apiUrl}/ventas/${id}`);
-  }
-
-  // Auxiliares
-  getBarrios(): Observable<Barrio[]> {
-    return this.http.get<Barrio[]>(`${this.apiUrl}/barrios`);
-  }
-
-  getLocalidades(): Observable<Localidad[]> {
-    return this.http.get<Localidad[]>(`${this.apiUrl}/localidades`);
-  }
-
-  getProvincias(): Observable<Provincia[]> {
-    return this.http.get<Provincia[]>(`${this.apiUrl}/provincias`);
-  }
-
-  getUnidadesMedida(): Observable<UnidadMedida[]> {
-    return this.http.get<UnidadMedida[]>(`${this.apiUrl}/unidades-medida`);
+  notificarUbicacion(payload: {
+    numeroBolsin: number;
+    latitud: number;
+    longitud: number;
+    fechaHoraActualizacion: string;
+    emailDestino: string;
+  }): Observable<{ success: boolean; message: string }> {
+    return this.http.post<{ success: boolean; message: string }>(`${this.apiUrl}/seguimiento/notificar`, payload);
   }
 }

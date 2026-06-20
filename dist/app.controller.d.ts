@@ -5,21 +5,15 @@ export declare class AppController {
     private readonly dataSource;
     constructor(appService: AppService, dataSource: DataSource);
     getHello(): string;
-    getPastasTest(): Promise<{
+    getBolsinesTest(): Promise<{
         id: number;
-        nombre: string;
-        ganancia: number;
-        es_relleno: boolean;
-        recetas: {
-            id: number;
-            cantidad: number;
-            ingrediente: {
-                id: number;
-                nombre: string;
-                costo: number;
-                unidad_medida: string;
-            };
-        }[];
-        precioCalculado: number;
+        numeroBolsin: number;
+        numeroPrecinto: string;
+        peso: number;
+        fechaCreacion: Date;
+        esTuCMOrigenDeOrigen: boolean;
+        esTuCMOrigenDeDestino: boolean;
+        cmDestinoNombre: string;
+        sosEnviado: boolean;
     }[]>;
 }

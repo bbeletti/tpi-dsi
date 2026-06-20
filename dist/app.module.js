@@ -12,7 +12,7 @@ const config_1 = require("@nestjs/config");
 const typeorm_1 = require("@nestjs/typeorm");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
-const pastas_module_1 = require("./pastas/pastas.module");
+const pastas_module_1 = require("./bolsin/pastas.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;

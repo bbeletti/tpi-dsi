@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { PastasModule } from './pastas/pastas.module';
+import { PastasModule } from './bolsin/pastas.module';
 
 @Module({
   imports: [
@@ -30,4 +30,4 @@ import { PastasModule } from './pastas/pastas.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

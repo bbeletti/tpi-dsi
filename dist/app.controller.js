@@ -13,7 +13,7 @@ exports.AppController = void 0;
 const common_1 = require("@nestjs/common");
 const app_service_1 = require("./app.service");
 const typeorm_1 = require("typeorm");
-const producto_entity_1 = require("./pastas/entities/producto.entity");
+const bolsin_entity_1 = require("./bolsin/entities/bolsin.entity");
 let AppController = class AppController {
     appService;
     dataSource;
@@ -24,26 +24,22 @@ let AppController = class AppController {
     getHello() {
         return this.appService.getHello();
     }
-    async getPastasTest() {
-        const productoRepo = this.dataSource.getRepository(producto_entity_1.Producto);
-        const productos = await productoRepo.find();
-        return productos.map((p) => ({
-            id: p.id,
-            nombre: p.nombre,
-            ganancia: p.ganancia,
-            es_relleno: p.es_relleno,
-            recetas: p.recetas.map((r) => ({
-                id: r.id,
-                cantidad: r.cantidad,
-                ingrediente: {
-                    id: r.ingrediente?.id,
-                    nombre: r.ingrediente?.nombre,
-                    costo: r.ingrediente?.costo,
-                    unidad_medida: r.ingrediente?.unidad_medida?.nombre,
-                },
-            })),
-            precioCalculado: p.precio,
-        }));
+    async getBolsinesTest() {
+        const bolsinRepo = this.dataSource.getRepository(bolsin_entity_1.Bolsin);
+        const bolsines = await bolsinRepo.find();
+        return bolsines.map((b) => {
+            return {
+                id: b.id,
+                numeroBolsin: b.obtenerNumeroBolsin(),
+                numeroPrecinto: b.obtenerNroPrecinto(),
+                peso: b.peso,
+                fechaCreacion: b.fechaCreacion,
+                esTuCMOrigenDeOrigen: b.esTuCMOrigen(b.origen),
+                esTuCMOrigenDeDestino: b.esTuCMOrigen(b.destino),
+                cmDestinoNombre: b.obtenerCMDestino()?.obtenerNombre(),
+                sosEnviado: b.sosEnviado(),
+            };
+        });
     }
 };
 exports.AppController = AppController;
@@ -54,11 +50,11 @@ __decorate([
     __metadata("design:returntype", String)
 ], AppController.prototype, "getHello", null);
 __decorate([
-    (0, common_1.Get)('pastas-test'),
+    (0, common_1.Get)('bolsines-test'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
-], AppController.prototype, "getPastasTest", null);
+], AppController.prototype, "getBolsinesTest", null);
 exports.AppController = AppController = __decorate([
     (0, common_1.Controller)(),
     __metadata("design:paramtypes", [app_service_1.AppService,

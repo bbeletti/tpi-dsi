@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 import { DataSource } from 'typeorm';
-import { Producto } from './pastas/entities/producto.entity';
+import { Bolsin } from './bolsin/entities/bolsin.entity';
 
 @Controller()
 export class AppController {
@@ -15,26 +15,23 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @Get('pastas-test')
-  async getPastasTest() {
-    const productoRepo = this.dataSource.getRepository(Producto);
-    const productos = await productoRepo.find();
-    return productos.map((p) => ({
-      id: p.id,
-      nombre: p.nombre,
-      ganancia: p.ganancia,
-      es_relleno: p.es_relleno,
-      recetas: p.recetas.map((r) => ({
-        id: r.id,
-        cantidad: r.cantidad,
-        ingrediente: {
-          id: r.ingrediente?.id,
-          nombre: r.ingrediente?.nombre,
-          costo: r.ingrediente?.costo,
-          unidad_medida: r.ingrediente?.unidad_medida?.nombre,
-        },
-      })),
-      precioCalculado: p.precio,
-    }));
+  @Get('bolsines-test')
+  async getBolsinesTest() {
+    const bolsinRepo = this.dataSource.getRepository(Bolsin);
+    const bolsines = await bolsinRepo.find();
+
+    return bolsines.map((b) => {
+      return {
+        id: b.id,
+        numeroBolsin: b.obtenerNumeroBolsin(),
+        numeroPrecinto: b.obtenerNroPrecinto(),
+        peso: b.peso,
+        fechaCreacion: b.fechaCreacion,
+        esTuCMOrigenDeOrigen: b.esTuCMOrigen(b.origen),
+        esTuCMOrigenDeDestino: b.esTuCMOrigen(b.destino),
+        cmDestinoNombre: b.obtenerCMDestino()?.obtenerNombre(),
+        sosEnviado: b.sosEnviado(),
+      };
+    });
   }
 }

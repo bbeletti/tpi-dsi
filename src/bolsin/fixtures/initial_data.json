@@ -1,0 +1,190 @@
+[
+  {
+    "model": "bolsin.estado_bolsin",
+    "pk": 1,
+    "fields": {
+      "nombre": "Creado",
+      "descripcion": "Bolsín creado e inicializado"
+    }
+  },
+  {
+    "model": "bolsin.estado_bolsin",
+    "pk": 2,
+    "fields": {
+      "nombre": "Enviado",
+      "descripcion": "Bolsín enviado a CM destino"
+    }
+  },
+  {
+    "model": "bolsin.estado_bolsin",
+    "pk": 3,
+    "fields": {
+      "nombre": "Recibido",
+      "descripcion": "Bolsín recibido en destino"
+    }
+  },
+  {
+    "model": "bolsin.cm",
+    "pk": 1,
+    "fields": {
+      "codigo": "CM-01",
+      "nombre": "Comisión Médica Central",
+      "direccion": "Calle Falsa 123",
+      "email": "cm1@comision.gob.ar",
+      "telefono": "11-2222-3333"
+    }
+  },
+  {
+    "model": "bolsin.cm",
+    "pk": 2,
+    "fields": {
+      "codigo": "CM-02",
+      "nombre": "Comisión Médica Norte",
+      "direccion": "Av. Siempre Viva 742",
+      "email": "cm2@comision.gob.ar",
+      "telefono": "11-4444-5555"
+    }
+  },
+  {
+    "model": "bolsin.cm",
+    "pk": 3,
+    "fields": {
+      "codigo": "CM-03",
+      "nombre": "Comisión Médica Sur",
+      "direccion": "Colón 999",
+      "email": "cm3@comision.gob.ar",
+      "telefono": "11-6666-7777"
+    }
+  },
+  {
+    "model": "bolsin.rol",
+    "pk": 1,
+    "fields": {
+      "nombre": "Gerente de Comisión Médica (GCM)"
+    }
+  },
+  {
+    "model": "bolsin.rol",
+    "pk": 2,
+    "fields": {
+      "nombre": "Encargado de bolsines"
+    }
+  },
+  {
+    "model": "bolsin.empleado",
+    "pk": 1,
+    "fields": {
+      "nombre": "Juan",
+      "apellido": "Pérez",
+      "email": "juan.perez@comision.gob.ar",
+      "legajo": "L-10001",
+      "rol": 1,
+      "cm": 1
+    }
+  },
+  {
+    "model": "bolsin.empleado",
+    "pk": 2,
+    "fields": {
+      "nombre": "María",
+      "apellido": "Gómez",
+      "email": "maria.gomez@comision.gob.ar",
+      "legajo": "L-10002",
+      "rol": 2,
+      "cm": 2
+    }
+  },
+  {
+    "model": "bolsin.usuario",
+    "pk": 1,
+    "fields": {
+      "usuario_activo": "jperez",
+      "empleado_activo": true,
+      "empleado": 1
+    }
+  },
+  {
+    "model": "bolsin.usuario",
+    "pk": 2,
+    "fields": {
+      "usuario_activo": "mgomez",
+      "empleado_activo": true,
+      "empleado": 2
+    }
+  },
+  {
+    "model": "bolsin.sesion",
+    "pk": 1,
+    "fields": {
+      "fecha_hora_ingreso": "2026-06-20T14:11:58.000Z",
+      "fecha_hora_egreso": null,
+      "usuario": 1
+    }
+  },
+  {
+    "model": "bolsin.sesion",
+    "pk": 2,
+    "fields": {
+      "fecha_hora_ingreso": "2026-06-20T11:11:58.000Z",
+      "fecha_hora_egreso": "2026-06-20T13:11:58.000Z",
+      "usuario": 2
+    }
+  },
+  {
+    "model": "bolsin.bolsin",
+    "pk": 1,
+    "fields": {
+      "fecha_creacion": "2026-06-20T15:11:58.000Z",
+      "numero_bolsin": 10101,
+      "numero_precinto": "P-888777",
+      "peso": 2.50,
+      "origen": 1,
+      "destino": 2
+    }
+  },
+  {
+    "model": "bolsin.bolsin",
+    "pk": 2,
+    "fields": {
+      "fecha_creacion": "2026-06-20T12:11:58.000Z",
+      "numero_bolsin": 20202,
+      "numero_precinto": "P-999111",
+      "peso": 1.85,
+      "origen": 2,
+      "destino": 3
+    }
+  },
+  {
+    "model": "bolsin.cambio_estado_bolsin",
+    "pk": 1,
+    "fields": {
+      "fecha_hora_inicio": "2026-06-20T15:11:58.000Z",
+      "fecha_hora_fin": "2026-06-20T15:41:58.000Z",
+      "us_log": "jperez",
+      "estado": 1,
+      "bolsin": 1
+    }
+  },
+  {
+    "model": "bolsin.cambio_estado_bolsin",
+    "pk": 2,
+    "fields": {
+      "fecha_hora_inicio": "2026-06-20T15:41:58.000Z",
+      "fecha_hora_fin": null,
+      "us_log": "jperez",
+      "estado": 2,
+      "bolsin": 1
+    }
+  },
+  {
+    "model": "bolsin.cambio_estado_bolsin",
+    "pk": 3,
+    "fields": {
+      "fecha_hora_inicio": "2026-06-20T12:11:58.000Z",
+      "fecha_hora_fin": null,
+      "us_log": "mgomez",
+      "estado": 1,
+      "bolsin": 2
+    }
+  }
+]

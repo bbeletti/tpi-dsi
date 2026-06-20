@@ -150,8 +150,44 @@
       "numero_bolsin": 20202,
       "numero_precinto": "P-999111",
       "peso": 1.85,
+      "origen": 1,
+      "destino": 2
+    }
+  },
+  {
+    "model": "bolsin.bolsin",
+    "pk": 3,
+    "fields": {
+      "fecha_creacion": "2026-06-20T13:00:00.000Z",
+      "numero_bolsin": 30303,
+      "numero_precinto": "P-111222",
+      "peso": 3.10,
       "origen": 2,
       "destino": 3
+    }
+  },
+  {
+    "model": "bolsin.bolsin",
+    "pk": 4,
+    "fields": {
+      "fecha_creacion": "2026-06-20T14:00:00.000Z",
+      "numero_bolsin": 40404,
+      "numero_precinto": "P-333444",
+      "peso": 4.25,
+      "origen": 2,
+      "destino": 3
+    }
+  },
+  {
+    "model": "bolsin.bolsin",
+    "pk": 5,
+    "fields": {
+      "fecha_creacion": "2026-06-20T14:45:00.000Z",
+      "numero_bolsin": 50505,
+      "numero_precinto": "P-555666",
+      "peso": 0.95,
+      "origen": 3,
+      "destino": 1
     }
   },
   {
@@ -181,10 +217,87 @@
     "pk": 3,
     "fields": {
       "fecha_hora_inicio": "2026-06-20T12:11:58.000Z",
-      "fecha_hora_fin": null,
-      "us_log": "mgomez",
+      "fecha_hora_fin": "2026-06-20T12:41:58.000Z",
+      "us_log": "jperez",
       "estado": 1,
       "bolsin": 2
+    }
+  },
+  {
+    "model": "bolsin.cambio_estado_bolsin",
+    "pk": 4,
+    "fields": {
+      "fecha_hora_inicio": "2026-06-20T12:41:58.000Z",
+      "fecha_hora_fin": null,
+      "us_log": "jperez",
+      "estado": 2,
+      "bolsin": 2
+    }
+  },
+  {
+    "model": "bolsin.cambio_estado_bolsin",
+    "pk": 5,
+    "fields": {
+      "fecha_hora_inicio": "2026-06-20T13:00:00.000Z",
+      "fecha_hora_fin": "2026-06-20T13:30:00.000Z",
+      "us_log": "jperez",
+      "estado": 1,
+      "bolsin": 3
+    }
+  },
+  {
+    "model": "bolsin.cambio_estado_bolsin",
+    "pk": 6,
+    "fields": {
+      "fecha_hora_inicio": "2026-06-20T13:30:00.000Z",
+      "fecha_hora_fin": null,
+      "us_log": "jperez",
+      "estado": 2,
+      "bolsin": 3
+    }
+  },
+  {
+    "model": "bolsin.cambio_estado_bolsin",
+    "pk": 7,
+    "fields": {
+      "fecha_hora_inicio": "2026-06-20T14:00:00.000Z",
+      "fecha_hora_fin": "2026-06-20T14:30:00.000Z",
+      "us_log": "jperez",
+      "estado": 1,
+      "bolsin": 4
+    }
+  },
+  {
+    "model": "bolsin.cambio_estado_bolsin",
+    "pk": 8,
+    "fields": {
+      "fecha_hora_inicio": "2026-06-20T14:30:00.000Z",
+      "fecha_hora_fin": null,
+      "us_log": "jperez",
+      "estado": 2,
+      "bolsin": 4
+    }
+  },
+  {
+    "model": "bolsin.cambio_estado_bolsin",
+    "pk": 9,
+    "fields": {
+      "fecha_hora_inicio": "2026-06-20T14:45:00.000Z",
+      "fecha_hora_fin": "2026-06-20T15:15:00.000Z",
+      "us_log": "jperez",
+      "estado": 1,
+      "bolsin": 5
+    }
+  },
+  {
+    "model": "bolsin.cambio_estado_bolsin",
+    "pk": 10,
+    "fields": {
+      "fecha_hora_inicio": "2026-06-20T15:15:00.000Z",
+      "fecha_hora_fin": null,
+      "us_log": "jperez",
+      "estado": 2,
+      "bolsin": 5
     }
   }
 ]

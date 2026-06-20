@@ -15,7 +15,7 @@ export class Seguimiento implements OnInit, OnDestroy, AfterViewInit {
 
   protected readonly cmUsuario = signal<{ id: number; nombre: string; codigo: string } | null>(null);
   protected readonly bolsines = signal<BolsinSeguimiento[]>([]);
-  
+
   // Filter states
   protected readonly filtroPrecinto = signal<string>('');
   protected readonly filtroDestino = signal<string>('');
@@ -32,11 +32,10 @@ export class Seguimiento implements OnInit, OnDestroy, AfterViewInit {
   private pulseSize = 0;
   private pulseDir = 1;
 
-  // Commissions geographic locations for map rendering
   private readonly commissions = [
-    { name: 'CM Central', code: 'CM-01', lat: -34.6037, lng: -58.3816, x: 0, y: 0 },
+    { name: 'CM Central', code: 'CM-01', lat: -34.6237, lng: -58.3616, x: 0, y: 0 },
     { name: 'CM Norte', code: 'CM-02', lat: -34.5600, lng: -58.4500, x: 0, y: 0 },
-    { name: 'CM Sur', code: 'CM-03', lat: -34.6600, lng: -58.3300, x: 0, y: 0 },
+    { name: 'CM Sur', code: 'CM-03', lat: -34.6600, lng: -58.400, x: 0, y: 0 },
   ];
 
   ngOnInit() {
@@ -65,7 +64,7 @@ export class Seguimiento implements OnInit, OnDestroy, AfterViewInit {
       next: (res) => {
         this.cmUsuario.set(res.cmUsuario);
         this.bolsines.set(res.bolsines);
-        
+
         // Preserve selection or update it with fresh coordinates
         if (this.selectedBolsin()) {
           const updated = res.bolsines.find(b => b.id === this.selectedBolsin()!.id);
@@ -169,10 +168,10 @@ export class Seguimiento implements OnInit, OnDestroy, AfterViewInit {
         const maxLat = -34.54;
         const minLng = -58.47;
         const maxLng = -58.31;
-        
+
         const pctY = (lat - maxLat) / (minLat - maxLat);
         const pctX = (lng - minLng) / (maxLng - minLng);
-        
+
         return {
           x: 60 + pctX * (w - 120),
           y: 50 + pctY * (h - 100)
@@ -183,7 +182,7 @@ export class Seguimiento implements OnInit, OnDestroy, AfterViewInit {
       ctx.strokeStyle = isLight ? 'rgba(49, 130, 206, 0.35)' : 'rgba(66, 153, 225, 0.25)';
       ctx.lineWidth = 3;
       ctx.setLineDash([5, 5]);
-      
+
       const c1 = mapCoords(this.commissions[0].lat, this.commissions[0].lng);
       const c2 = mapCoords(this.commissions[1].lat, this.commissions[1].lng);
       const c3 = mapCoords(this.commissions[2].lat, this.commissions[2].lng);
@@ -243,6 +242,8 @@ export class Seguimiento implements OnInit, OnDestroy, AfterViewInit {
         this.pulseDir *= -1;
       }
 
+      const drawnLabels: { x: number; y: number }[] = [];
+
       // 4. Draw bolsines in transit (based on filtered list)
       this.bolsinesFiltrados.forEach((bolsin: BolsinSeguimiento) => {
         const pos = mapCoords(bolsin.latitud, bolsin.longitud);
@@ -268,13 +269,41 @@ export class Seguimiento implements OnInit, OnDestroy, AfterViewInit {
         ctx.arc(pos.x, pos.y, 5, 0, Math.PI * 2);
         ctx.stroke();
 
+        // Decollision logic: stack labels vertically if coordinates are identical/too close
+        const isNorteSur = (bolsin.origen.codigo === 'CM-02' && bolsin.destino.codigo === 'CM-03') || 
+                           (bolsin.origen.codigo === 'CM-03' && bolsin.destino.codigo === 'CM-02');
+        let labelX = isNorteSur ? pos.x - 8 : pos.x + 8;
+        let labelY = pos.y + 3;
+        let attempts = 0;
+        while (attempts < 10) {
+          const collides = drawnLabels.some(d =>
+            Math.abs(d.y - labelY) < 11 && Math.abs(d.x - labelX) < 85
+          );
+          if (!collides) {
+            break;
+          }
+          labelY += 12; // Shift down
+          attempts++;
+        }
+        drawnLabels.push({ x: labelX, y: labelY });
+
+        // Draw subtle connector line if label is shifted
+        if (labelY !== pos.y + 3) {
+          ctx.strokeStyle = isLight ? 'rgba(74, 85, 104, 0.25)' : 'rgba(203, 213, 225, 0.25)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(pos.x, pos.y);
+          ctx.lineTo(isNorteSur ? labelX + 2 : labelX - 2, labelY - 3);
+          ctx.stroke();
+        }
+
         // Label with precinto and destination
         ctx.font = isSelected ? 'bold 10px sans-serif' : '9px sans-serif';
-        ctx.textAlign = 'left';
-        
+        ctx.textAlign = isNorteSur ? 'right' : 'left';
+
         const labelText = `${bolsin.numeroPrecinto} → ${bolsin.destino.codigo}`;
         ctx.fillStyle = isSelected ? (isLight ? '#dc2626' : '#f87171') : (isLight ? '#047857' : '#a7f3d0');
-        ctx.fillText(labelText, pos.x + 8, pos.y + 3);
+        ctx.fillText(labelText, labelX, labelY);
       });
 
       this.animationId = requestAnimationFrame(render);
@@ -292,11 +321,11 @@ export class Seguimiento implements OnInit, OnDestroy, AfterViewInit {
         const minLng = -58.47;
         const maxLng = -58.31;
         const w = rect.width;
-        const h = 400;
-        
+        const h = rect.height;
+
         const pctY = (lat - maxLat) / (minLat - maxLat);
         const pctX = (lng - minLng) / (maxLng - minLng);
-        
+
         return {
           x: 60 + pctX * (w - 120),
           y: 50 + pctY * (h - 100)

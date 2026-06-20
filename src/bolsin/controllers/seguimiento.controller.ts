@@ -7,10 +7,9 @@ import { Sesion } from '../entities/sesion.entity';
 class GpsTrackerSimulator {
   // XTR-4500L: returns JSON string
   static getBolsinLocation(apiKey: string, numeroBolsin: number, cmOrigenCodigo: string): string {
-    // Central coordinates: -34.6037, -58.3816
-    // Simulate bag moving towards Norte (CM-02)
-    const lat = -34.5815;
-    const lng = -58.4112;
+    // Bolsin 10101: CM Central -> CM Norte (25% progress)
+    const lat = -34.6078;
+    const lng = -58.3837;
     const updateTime = new Date().toISOString();
     return JSON.stringify([
       {
@@ -24,17 +23,26 @@ class GpsTrackerSimulator {
 
   // NavTrack QX-7A: returns comma separated values
   static retrieveTrackingData(apiKey: string, numeroBolsin: number, cmDestinoCodigo: string): string {
-    // Simulate bag moving
-    const lat = -34.5710;
-    const lng = -58.4320;
+    // Bolsin 20202: CM Central -> CM Norte (60% progress)
+    const lat = -34.5855;
+    const lng = -58.4146;
     const updateTime = new Date().toISOString();
     return `${numeroBolsin},${lat},${lng},${updateTime}`;
   }
 
   // GeoPulse MTR-900: returns a matrix
   static fetchCargoPositions(apiKey: string, numeroBolsin: number): any[][] {
-    const lat = -34.6120;
-    const lng = -58.3750;
+    let lat = -34.6050; // Bolsin 30303: CM Norte -> CM Sur (45% progress - same position as 40404)
+    let lng = -58.4275;
+    if (numeroBolsin === 40404) {
+      // Bolsin 40404: CM Norte -> CM Sur (45% progress - same position as 30303)
+      lat = -34.6050;
+      lng = -58.4275;
+    } else if (numeroBolsin === 50505) {
+      // Bolsin 50505: CM Sur -> CM Central (50% progress)
+      lat = -34.6419;
+      lng = -58.3808;
+    }
     const updateTime = new Date().toISOString();
     return [
       [numeroBolsin, lat, lng, updateTime]
@@ -83,9 +91,9 @@ export class SeguimientoController {
       }
     });
 
-    // Filter: state 'Enviado' and origin CM matches user's CM
+    // Filter: state 'Enviado' (return all active bags in transit regardless of origin to show complete routes)
     const bolsinesEnviados = allBolsines.filter(b => 
-      b.esTuCMOrigen(cmUsuario) && b.sosEnviado()
+      b.sosEnviado()
     );
 
     // 3. For each bolsin, fetch location from the GPS tracker simulator and look up GCM email

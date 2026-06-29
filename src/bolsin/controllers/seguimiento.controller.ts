@@ -56,7 +56,8 @@ export class SeguimientoController {
 
   @Get('seguimiento/consultar')
   async consultarSeguimiento() {
-    // 1. Resolve current active session (fechaHoraEgreso is null)
+    // CU 36 - Paso 1: El Encargado de Bolsines (EB) selecciona la opción para consultar ubicación en el frontend, lo que inicia la petición HTTP.
+    // CU 36 - Paso 2: El sistema busca y muestra la Comisión Médica (CM) del usuario logueado a partir de la sesión activa
     const sesionRepo = this.dataSource.getRepository(Sesion);
     const sesion = await sesionRepo.findOne({
       where: { fechaHoraEgreso: IsNull() },
@@ -91,9 +92,9 @@ export class SeguimientoController {
       }
     });
 
-    // Filter: state 'Enviado' (return all active bags in transit regardless of origin to show complete routes)
-    const bolsinesEnviados = allBolsines.filter(b => 
-      b.sosEnviado()
+    // CU 36 - Paso 3: El sistema busca los bolsines en estado 'Enviado' cuya Comisión Médica de origen es igual a la del usuario logueado
+    const bolsinesEnviados = allBolsines.filter((b: Bolsin) => 
+      b.sosEnviado() && b.esTuCMOrigen(cmUsuario)
     );
 
     // 3. For each bolsin, fetch location from the GPS tracker simulator and look up GCM email
@@ -106,7 +107,7 @@ export class SeguimientoController {
       let updateTime = '';
       let trackerModel = '';
 
-      // Determine GPS Tracker model based on number
+      // CU 36 - Pasos 4, 5 y Observación 1: El sistema solicita y recibe del simulador del dispositivo GPS Tracker los datos de localización del bolsín (XTR-4500L, NavTrack QX-7A o GeoPulse MTR-900)
       if (bolsin.numeroBolsin === 10101) {
         trackerModel = 'XTR-4500L';
         const raw = GpsTrackerSimulator.getBolsinLocation('KEY-XTR-99', bolsin.numeroBolsin, bolsin.origen.codigo);
@@ -129,12 +130,12 @@ export class SeguimientoController {
         updateTime = raw[0][3];
       }
 
-      // Lookup destination GCM email
+      // CU 36 - Paso 10: El sistema busca la dirección de correo electrónico del Gerente de Comisión Médica (GCM) de destino
       const empleadosDestino = await empleadoRepo.find({
         where: { cm: { id: bolsin.destino.id } },
         relations: { rol: true, cm: true }
       });
-      const gcm = empleadosDestino.find(e => e.sosGCM());
+      const gcm = empleadosDestino.find((e: Empleado) => e.sosGCM());
       const emailDestino = gcm ? gcm.obtenerEmail() : 'gerente.gcm@comision.gob.ar';
 
       result.push({
@@ -161,6 +162,7 @@ export class SeguimientoController {
       });
     }
 
+    // CU 36 - Paso 6: El sistema retorna los bolsines y la CM del usuario para que el frontend los muestre sobre el mapa
     return {
       cmUsuario: {
         id: cmUsuario.id,
@@ -173,6 +175,7 @@ export class SeguimientoController {
 
   @Post('seguimiento/notificar')
   async notificarUbicacion(
+    // CU 36 - Pasos 7 y 9: El Encargado de Bolsines (EB) selecciona un bolsín del mapa y elige la opción de notificar ubicación, disparando esta petición.
     @Body() body: {
       numeroBolsin: number;
       latitud: number;
@@ -183,7 +186,7 @@ export class SeguimientoController {
   ) {
     const { numeroBolsin, latitud, longitud, fechaHoraActualizacion, emailDestino } = body;
     
-    // Simulate sending email (Caso de Uso 31)
+    // CU 36 - Pasos 8, 9, 11 (Incluye CU 31): Notificar ubicación de bolsín al Gerente de Comisión Médica (GCM) de destino
     console.log('--------------------------------------------------');
     console.log('[CU 31 Notificar ubicación de bolsín] ENVIANDO EMAIL...');
     console.log(`Para: ${emailDestino}`);

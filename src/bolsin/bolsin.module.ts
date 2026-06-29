@@ -32,4 +32,4 @@ import { SeguimientoController } from './controllers/seguimiento.controller';
   ],
   exports: [TypeOrmModule],
 })
-export class PastasModule {}
+export class BolsinModule {}

@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { PastasModule } from './bolsin/pastas.module';
+import { BolsinModule } from './bolsin/bolsin.module';
 
 @Module({
   imports: [
@@ -25,7 +25,7 @@ import { PastasModule } from './bolsin/pastas.module';
         synchronize: true,
       }),
     }),
-    PastasModule,
+    BolsinModule,
   ],
   controllers: [AppController],
   providers: [AppService],

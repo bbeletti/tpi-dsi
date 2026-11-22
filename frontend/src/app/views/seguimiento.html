@@ -28,7 +28,7 @@
       <span style="font-size: 11px; opacity: 0.5;">Actualización automática: 10s</span>
     </div>
     
-    <div class="map-canvas-container" style="height: 400px; width: 100%;">
+    <div class="map-canvas-container" style="height: 80vh; width: 100%;">
       <google-map *ngIf="mapsLoaded(); else mapsLoading"
                   [center]="mapCenter()"
                   [zoom]="mapZoom()"
@@ -38,7 +38,8 @@
         <map-marker *ngFor="let cm of cmMarkers()"
                     [position]="{ lat: cm.latitud, lng: cm.longitud }"
                     [title]="cm.nombre"
-                    [options]="cmMarkerOptions()"></map-marker>
+                    [options]="cmMarkerOptions()"
+                    (mapClick)="selectCm(cm)"></map-marker>
         <map-marker *ngFor="let b of bolsinesFiltrados"
                     [position]="{ lat: b.latitud, lng: b.longitud }"
                     [title]="b.numeroPrecinto + ' -> ' + b.destino.codigo"
@@ -51,6 +52,8 @@
         </div>
       </ng-template>
     </div>
+
+
   </div>
 
   <!-- 3. Search Filters Card (Spans 1 col, 1 row) -->
@@ -196,6 +199,36 @@
     <ng-template #noSelection>
       <div style="height: 100%; display: flex; align-items: center; justify-content: center; text-align: center; color: var(--color-text-muted); padding: 40px 20px;">
         <p style="font-size: 13px; margin: 0;">Selecciona un bolsín del mapa o del listado para ver su información de rastreo y notificar al GCM.</p>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- CM detail card -->
+  <div class="bento-item bento-item-cm-details">
+    <h3 style="font-size: 13px; font-weight: 500; margin: 0; margin-bottom: 12px; color: var(--color-primary); text-transform: uppercase; letter-spacing: 0.5px;">
+      CM seleccionada
+    </h3>
+    <div *ngIf="selectedCm(); else noCmSelection">
+      <div class="detail-grid" style="gap: 12px;">
+        <div class="detail-item">
+          <span class="detail-label">Nombre</span>
+          <span class="detail-value" style="font-size: 13px;">{{ selectedCm()?.nombre }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Código</span>
+          <span class="detail-value" style="font-size: 13px;">{{ selectedCm()?.codigo }}</span>
+        </div>
+        <div class="detail-item" style="grid-column: span 2;">
+          <span class="detail-label">Coordenadas</span>
+          <span class="detail-value text-accent" style="font-size: 13px;">
+            {{ selectedCm()?.latitud | number:'1.4-4' }}, {{ selectedCm()?.longitud | number:'1.4-4' }}
+          </span>
+        </div>
+      </div>
+    </div>
+    <ng-template #noCmSelection>
+      <div style="height: 100%; display: flex; align-items: center; justify-content: center; text-align: center; color: var(--color-text-muted); padding: 20px;">
+        <p style="font-size: 13px; margin: 0;">Selecciona una CM del mapa para ver su detalle.</p>
       </div>
     </ng-template>
   </div>

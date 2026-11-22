@@ -1,7 +1,7 @@
-import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { GoogleMap, MapMarker } from '@angular/google-maps';
+import { GoogleMap, MapMarker, MapInfoWindow } from '@angular/google-maps';
 import { ApiService } from '../services/api.service';
 import { BolsinSeguimiento, SeguimientoResponse } from '../models';
 
@@ -40,6 +40,10 @@ export class Seguimiento implements OnInit, OnDestroy {
   protected readonly mapCenter = signal<google.maps.LatLngLiteral>({ lat: -34.6037, lng: -58.3816 });
   protected readonly mapZoom = signal<number>(12);
   protected readonly cmMarkers = signal<CmMarker[]>([]);
+  protected readonly selectedCm = signal<CmMarker | null>(null);
+  protected readonly cmInfoPosition = signal<google.maps.LatLngLiteral | null>(null);
+
+  @ViewChild(MapInfoWindow) infoWindow!: MapInfoWindow;
 
   private refreshInterval: any = null;
 
@@ -153,6 +157,17 @@ export class Seguimiento implements OnInit, OnDestroy {
 
   clearSelection() {
     this.selectedBolsin.set(null);
+  }
+
+  selectCm(cm: CmMarker) {
+    this.selectedCm.set(cm);
+    this.cmInfoPosition.set({ lat: cm.latitud, lng: cm.longitud });
+    // Ensure the info window opens after position is applied
+    setTimeout(() => this.infoWindow?.open(), 0);
+  }
+
+  clearCmSelection() {
+    this.selectedCm.set(null);
   }
 
   notificarGCM(bolsin: BolsinSeguimiento) {

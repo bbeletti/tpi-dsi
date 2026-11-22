@@ -38,9 +38,13 @@ export class Seguimiento implements OnInit, OnDestroy {
   protected readonly mapsError = signal<string | null>(null);
   protected readonly sinApiKey = this.mapsLoader.sinApiKey;
   private readonly mapId = signal('DEMO_MAP_ID');
-  protected readonly center: google.maps.LatLngLiteral = { lat: -34.61, lng: -58.41 };
-  protected readonly zoom = 12;
+  // Vista inicial: Argentina completa (después se encuadra según las CM y los bolsines)
+  protected readonly center: google.maps.LatLngLiteral = { lat: -35, lng: -63.5 };
+  protected readonly zoom = 4;
   private boundsFitted = false;
+  // Con el zoom alejado (vista de todo el país) se ocultan las etiquetas de los bolsines para que no se pisen
+  private readonly zoomActual = signal(4);
+  protected readonly etiquetasOcultas = computed(() => this.zoomActual() < 7);
 
   // El esquema de color de Google Maps solo se puede fijar al crear el mapa:
   // el template recrea el mapa cuando cambia el tema.
@@ -161,6 +165,10 @@ export class Seguimiento implements OnInit, OnDestroy {
     this.googleMap = map;
     this.boundsFitted = false;
     this.fitBoundsOnce();
+  }
+
+  onZoomChanged() {
+    this.zoomActual.set(this.googleMap?.getZoom() ?? 4);
   }
 
   /** Encuadra el mapa para que se vean todas las CM y los bolsines, una sola vez por mapa. */

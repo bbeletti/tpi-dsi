@@ -28,7 +28,7 @@
       <span style="font-size: 11px; opacity: 0.5;">Actualización automática: 10s</span>
     </div>
     
-    <div class="map-container">
+    <div class="map-container" [class.etiquetas-ocultas]="etiquetasOcultas()">
       @if (mapsError()) {
         <div class="map-message">{{ mapsError() }}</div>
       } @else if (!mapsReady()) {
@@ -43,6 +43,7 @@
             [zoom]="zoom"
             [options]="mapOptions()"
             (mapInitialized)="onMapInitialized($event)"
+            (zoomChanged)="onZoomChanged()"
             (mapClick)="clearSelection()"
           >
             <!-- Recorrido CM origen → CM destino de cada bolsín -->
@@ -121,7 +122,7 @@
           id="filtroDestino" 
           class="form-control" 
           style="padding: 8px 12px; font-size: 13px;"
-          placeholder="Ej: Norte o CM-02"
+          placeholder="Ej: Córdoba o CM-02"
           [ngModel]="filtroDestino()"
           (ngModelChange)="filtroDestino.set($event)"
         />

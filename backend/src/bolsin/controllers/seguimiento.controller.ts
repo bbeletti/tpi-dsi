@@ -4,12 +4,32 @@ import { Bolsin } from '../entities/bolsin.entity';
 import { Empleado } from '../entities/empleado.entity';
 import { Sesion } from '../entities/sesion.entity';
 
+// Última posición reportada por el GPS de cada bolsín (simula los dispositivos reales).
+// Cada bolsín está sobre una ciudad de la ruta entre su CM origen y su CM destino.
+const POSICIONES_GPS: Record<number, { lat: number; lng: number }> = {
+  10101: { lat: -32.4075, lng: -63.2402 }, // Buenos Aires → Córdoba: Villa María, Córdoba
+  20202: { lat: -34.0981, lng: -59.0286 }, // Buenos Aires → Rosario: Zárate, Buenos Aires
+  30303: { lat: -33.295, lng: -66.3356 }, // Córdoba → Mendoza: San Luis
+  40404: { lat: -27.7951, lng: -64.2615 }, // Rosario → Tucumán: Santiago del Estero
+  50505: { lat: -36.3132, lng: -57.6792 }, // Mar del Plata → Buenos Aires: Dolores, Buenos Aires
+  60606: { lat: -33.1232, lng: -64.3493 }, // Buenos Aires → Mendoza: Río Cuarto, Córdoba
+  70707: { lat: -31.2503, lng: -61.4867 }, // Buenos Aires → Tucumán: Rafaela, Santa Fe
+  80808: { lat: -36.6203, lng: -64.2906 }, // Buenos Aires → Neuquén: Santa Rosa, La Pampa
+  90909: { lat: -35.575, lng: -58.009 }, // Buenos Aires → Mar del Plata: Chascomús, Buenos Aires
+  11111: { lat: -30.9817, lng: -64.0942 }, // Buenos Aires → Salta: Jesús María, Córdoba
+  12121: { lat: -31.3929, lng: -58.0209 }, // Buenos Aires → Posadas: Concordia, Entre Ríos
+  13131: { lat: -38.7183, lng: -62.2663 }, // Buenos Aires → Comodoro Rivadavia: Bahía Blanca (mismo camión que 14141)
+  14141: { lat: -38.7183, lng: -62.2663 }, // Buenos Aires → Comodoro Rivadavia: Bahía Blanca (mismo camión que 13131)
+};
+
+function posicionDe(numeroBolsin: number) {
+  return POSICIONES_GPS[numeroBolsin] ?? { lat: -34.6037, lng: -58.3816 };
+}
+
 class GpsTrackerSimulator {
   // XTR-4500L: returns JSON string
   static getBolsinLocation(apiKey: string, numeroBolsin: number, cmOrigenCodigo: string): string {
-    // Bolsin 10101: CM Central -> CM Norte (25% progress)
-    const lat = -34.6078;
-    const lng = -58.3837;
+    const { lat, lng } = posicionDe(numeroBolsin);
     const updateTime = new Date().toISOString();
     return JSON.stringify([
       {
@@ -23,26 +43,14 @@ class GpsTrackerSimulator {
 
   // NavTrack QX-7A: returns comma separated values
   static retrieveTrackingData(apiKey: string, numeroBolsin: number, cmDestinoCodigo: string): string {
-    // Bolsin 20202: CM Central -> CM Norte (60% progress)
-    const lat = -34.5855;
-    const lng = -58.4146;
+    const { lat, lng } = posicionDe(numeroBolsin);
     const updateTime = new Date().toISOString();
     return `${numeroBolsin},${lat},${lng},${updateTime}`;
   }
 
   // GeoPulse MTR-900: returns a matrix
   static fetchCargoPositions(apiKey: string, numeroBolsin: number): any[][] {
-    let lat = -34.6050; // Bolsin 30303: CM Norte -> CM Sur (45% progress - same position as 40404)
-    let lng = -58.4275;
-    if (numeroBolsin === 40404) {
-      // Bolsin 40404: CM Norte -> CM Sur (45% progress - same position as 30303)
-      lat = -34.6050;
-      lng = -58.4275;
-    } else if (numeroBolsin === 50505) {
-      // Bolsin 50505: CM Sur -> CM Central (50% progress)
-      lat = -34.6419;
-      lng = -58.3808;
-    }
+    const { lat, lng } = posicionDe(numeroBolsin);
     const updateTime = new Date().toISOString();
     return [
       [numeroBolsin, lat, lng, updateTime]
@@ -108,14 +116,14 @@ export class SeguimientoController {
       let trackerModel = '';
 
       // CU 36 - Pasos 4, 5 y Observación 1: El sistema solicita y recibe del simulador del dispositivo GPS Tracker los datos de localización del bolsín (XTR-4500L, NavTrack QX-7A o GeoPulse MTR-900)
-      if (bolsin.numeroBolsin === 10101) {
+      if ([10101, 60606, 90909].includes(bolsin.numeroBolsin)) {
         trackerModel = 'XTR-4500L';
         const raw = GpsTrackerSimulator.getBolsinLocation('KEY-XTR-99', bolsin.numeroBolsin, bolsin.origen.codigo);
         const data = JSON.parse(raw)[0];
         lat = data.latitud;
         lng = data.longitud;
         updateTime = data.fechaHora;
-      } else if (bolsin.numeroBolsin === 20202) {
+      } else if ([20202, 70707, 12121].includes(bolsin.numeroBolsin)) {
         trackerModel = 'NavTrack QX-7A';
         const raw = GpsTrackerSimulator.retrieveTrackingData('KEY-NAV-88', bolsin.numeroBolsin, bolsin.destino.codigo);
         const parts = raw.split(',');

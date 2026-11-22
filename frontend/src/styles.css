@@ -435,6 +435,10 @@ body.light-theme .nav-item.active {
   color: #a7f3d0;
 }
 
+.etiquetas-ocultas .gm-bolsin:not(.selected) .gm-label {
+  display: none;
+}
+
 .gm-bolsin.selected .gm-label {
   color: #fecaca;
 }

@@ -79,6 +79,8 @@ export interface BolsinSeguimiento {
   fechaHoraActualizacion: string;
   trackerModel: string;
   emailDestino: string;
+  /** Recorrido por carretera precalculado, puntos [latitud, longitud] de CM origen a CM destino. */
+  ruta: [number, number][] | null;
 }
 
 export interface CMUbicacion {

@@ -23,6 +23,7 @@ async function bootstrap() {
     await queryRunner.connect();
 
     console.log('Limpiando tablas existentes...');
+    await queryRunner.query('TRUNCATE TABLE ruta RESTART IDENTITY CASCADE;');
     await queryRunner.query('TRUNCATE TABLE cambio_estado_bolsin RESTART IDENTITY CASCADE;');
     await queryRunner.query('TRUNCATE TABLE bolsin RESTART IDENTITY CASCADE;');
     await queryRunner.query('TRUNCATE TABLE sesion RESTART IDENTITY CASCADE;');
@@ -139,6 +140,18 @@ async function bootstrap() {
         });
       }
       console.log(`Se cargaron ${cambios.length} registros en CambioEstadoBolsin.`);
+
+      // 9. Ruta (recorridos por carretera precalculados con scripts/generar-rutas.mjs)
+      const rutas = JSON.parse(fs.readFileSync(path.join(__dirname, 'bolsin', 'fixtures', 'rutas.json'), 'utf8'));
+      for (const ruta of rutas) {
+        await queryRunner.manager.insert('ruta', {
+          origen: { id: ruta.origen },
+          destino: { id: ruta.destino },
+          distanciaKm: ruta.distanciaKm,
+          recorrido: ruta.recorrido,
+        });
+      }
+      console.log(`Se cargaron ${rutas.length} registros en Ruta.`);
 
       await queryRunner.commitTransaction();
       console.log('¡Carga de datos iniciales del dominio Bolsín completada con éxito!');

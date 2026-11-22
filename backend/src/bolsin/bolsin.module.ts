@@ -8,6 +8,7 @@ import { Sesion } from './entities/sesion.entity';
 import { EstadoBolsin } from './entities/estado-bolsin.entity';
 import { CambioEstadoBolsin } from './entities/cambio-estado-bolsin.entity';
 import { Bolsin } from './entities/bolsin.entity';
+import { Ruta } from './entities/ruta.entity';
 
 // Controllers
 import { BolsinesController } from './controllers/bolsines.controller';
@@ -24,6 +25,7 @@ import { SeguimientoController } from './controllers/seguimiento.controller';
       EstadoBolsin,
       CambioEstadoBolsin,
       Bolsin,
+      Ruta,
     ]),
   ],
   controllers: [

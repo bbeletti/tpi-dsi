@@ -3,27 +3,16 @@ import { DataSource, IsNull } from 'typeorm';
 import { Bolsin } from '../entities/bolsin.entity';
 import { Empleado } from '../entities/empleado.entity';
 import { Sesion } from '../entities/sesion.entity';
+import { Ruta } from '../entities/ruta.entity';
+import posicionesGps from '../fixtures/posiciones_gps.json';
 
 // Última posición reportada por el GPS de cada bolsín (simula los dispositivos reales).
-// Cada bolsín está sobre una ciudad de la ruta entre su CM origen y su CM destino.
-const POSICIONES_GPS: Record<number, { lat: number; lng: number }> = {
-  10101: { lat: -32.4075, lng: -63.2402 }, // Buenos Aires → Córdoba: Villa María, Córdoba
-  20202: { lat: -34.0981, lng: -59.0286 }, // Buenos Aires → Rosario: Zárate, Buenos Aires
-  30303: { lat: -33.295, lng: -66.3356 }, // Córdoba → Mendoza: San Luis
-  40404: { lat: -27.7951, lng: -64.2615 }, // Rosario → Tucumán: Santiago del Estero
-  50505: { lat: -36.3132, lng: -57.6792 }, // Mar del Plata → Buenos Aires: Dolores, Buenos Aires
-  60606: { lat: -33.1232, lng: -64.3493 }, // Buenos Aires → Mendoza: Río Cuarto, Córdoba
-  70707: { lat: -31.2503, lng: -61.4867 }, // Buenos Aires → Tucumán: Rafaela, Santa Fe
-  80808: { lat: -36.6203, lng: -64.2906 }, // Buenos Aires → Neuquén: Santa Rosa, La Pampa
-  90909: { lat: -35.575, lng: -58.009 }, // Buenos Aires → Mar del Plata: Chascomús, Buenos Aires
-  11111: { lat: -30.9817, lng: -64.0942 }, // Buenos Aires → Salta: Jesús María, Córdoba
-  12121: { lat: -31.3929, lng: -58.0209 }, // Buenos Aires → Posadas: Concordia, Entre Ríos
-  13131: { lat: -38.7183, lng: -62.2663 }, // Buenos Aires → Comodoro Rivadavia: Bahía Blanca (mismo camión que 14141)
-  14141: { lat: -38.7183, lng: -62.2663 }, // Buenos Aires → Comodoro Rivadavia: Bahía Blanca (mismo camión que 13131)
-};
+// La genera scripts/generar-rutas.mjs: cada bolsín está sobre la ruta entre su CM
+// origen y su CM destino, según su porcentaje de avance.
+const POSICIONES_GPS: Record<string, { lat: number; lng: number }> = posicionesGps;
 
 function posicionDe(numeroBolsin: number) {
-  return POSICIONES_GPS[numeroBolsin] ?? { lat: -34.6037, lng: -58.3816 };
+  return POSICIONES_GPS[String(numeroBolsin)] ?? { lat: -34.6037, lng: -58.3816 };
 }
 
 class GpsTrackerSimulator {
@@ -108,6 +97,8 @@ export class SeguimientoController {
     // 3. For each bolsin, fetch location from the GPS tracker simulator and look up GCM email
     const result = [];
     const empleadoRepo = this.dataSource.getRepository(Empleado);
+    // Recorridos por carretera precalculados, para dibujar cada bolsín sobre su ruta en el mapa
+    const rutas = await this.dataSource.getRepository(Ruta).find({ relations: { origen: true, destino: true } });
 
     for (const bolsin of bolsinesEnviados) {
       let lat = 0;
@@ -170,7 +161,8 @@ export class SeguimientoController {
         longitud: lng,
         fechaHoraActualizacion: updateTime,
         trackerModel,
-        emailDestino
+        emailDestino,
+        ruta: rutas.find((r) => r.esDelTramo(bolsin.origen, bolsin.destino))?.recorrido ?? null
       });
     }
 

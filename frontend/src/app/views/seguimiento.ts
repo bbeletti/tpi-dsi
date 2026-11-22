@@ -69,12 +69,15 @@ export class Seguimiento implements OnInit, OnDestroy {
   private readonly rutas = signal<Record<string, Tramos>>({});
   private readonly rutasPedidas = new Set<string>();
 
-  /** Tramos a dibujar por bolsín: la ruta real si ya está calculada, si no una línea recta. */
+  /**
+   * Tramos a dibujar por bolsín, en orden de preferencia: la ruta precalculada que
+   * entrega el backend, la de Google Routes (si hay API key) o una línea recta.
+   */
   protected readonly tramos = computed(() => {
     const rutas = this.rutas();
     const res: Record<number, Tramos> = {};
     for (const b of this.bolsines()) {
-      const tramos = rutas[this.claveRuta(b)] ?? this.tramosEnLineaRecta(b);
+      const tramos = this.tramosPrecalculados(b) ?? rutas[this.claveRuta(b)] ?? this.tramosEnLineaRecta(b);
       if (tramos) res[b.id] = tramos;
     }
     return res;
@@ -218,6 +221,29 @@ export class Seguimiento implements OnInit, OnDestroy {
     return `${b.id}:${b.latitud},${b.longitud}`;
   }
 
+  private tramosPrecalculados(b: BolsinSeguimiento): Tramos | null {
+    if (!b.ruta?.length) return null;
+    const puntos = b.ruta.map(([lat, lng]) => ({ lat, lng }));
+    return this.partirEnPosicion(puntos, { lat: b.latitud, lng: b.longitud });
+  }
+
+  /** Corta un recorrido en el punto más cercano a la posición del bolsín. */
+  private partirEnPosicion(puntos: google.maps.LatLngLiteral[], posicion: google.maps.LatLngLiteral): Tramos {
+    let corte = 0;
+    let distanciaMinima = Infinity;
+    puntos.forEach((p, i) => {
+      const d = (p.lat - posicion.lat) ** 2 + (p.lng - posicion.lng) ** 2;
+      if (d < distanciaMinima) {
+        distanciaMinima = d;
+        corte = i;
+      }
+    });
+    return {
+      recorrido: [...puntos.slice(0, corte + 1), posicion],
+      restante: [posicion, ...puntos.slice(corte + 1)],
+    };
+  }
+
   private tramosEnLineaRecta(b: BolsinSeguimiento): Tramos | null {
     if (b.origen.latitud == null || b.origen.longitud == null || b.destino.latitud == null || b.destino.longitud == null) {
       return null;
@@ -229,13 +255,13 @@ export class Seguimiento implements OnInit, OnDestroy {
     };
   }
 
-  /** Pide a Google Routes la ruta de cada bolsín que todavía no la tenga. Sin API key no se pide nada. */
+  /** Pide a Google Routes la ruta de los bolsines sin ruta precalculada. Sin API key no se pide nada. */
   private calcularRutas() {
     if (!this.mapsReady() || this.sinApiKey()) return;
 
     for (const b of this.bolsines()) {
       const clave = this.claveRuta(b);
-      if (this.rutasPedidas.has(clave) || !this.tramosEnLineaRecta(b)) continue;
+      if (b.ruta?.length || this.rutasPedidas.has(clave) || !this.tramosEnLineaRecta(b)) continue;
       this.rutasPedidas.add(clave);
       this.calcularRuta(b, clave);
     }
@@ -259,23 +285,8 @@ export class Seguimiento implements OnInit, OnDestroy {
 
       const path = routes?.[0]?.path;
       if (!path?.length) throw new Error('Respuesta sin recorrido');
-      const puntos = path.map((p) => ({ lat: p.lat, lng: p.lng }));
-
-      // La ruta pasa por la posición del bolsín: se corta en el punto más cercano
-      let corte = 0;
-      let distanciaMinima = Infinity;
-      puntos.forEach((p, i) => {
-        const d = (p.lat - posicion.lat) ** 2 + (p.lng - posicion.lng) ** 2;
-        if (d < distanciaMinima) {
-          distanciaMinima = d;
-          corte = i;
-        }
-      });
-
-      const tramos: Tramos = {
-        recorrido: [...puntos.slice(0, corte + 1), posicion],
-        restante: [posicion, ...puntos.slice(corte + 1)],
-      };
+      // La ruta pasa por la posición del bolsín: se corta ahí
+      const tramos = this.partirEnPosicion(path.map((p) => ({ lat: p.lat, lng: p.lng })), posicion);
       this.rutas.update((rutas) => ({ ...rutas, [clave]: tramos }));
     } catch (err) {
       // Se mantiene la línea recta como respaldo

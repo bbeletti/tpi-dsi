@@ -57,8 +57,8 @@ sequenceDiagram
 
 ### Detalle de las etapas:
 
-* **Arranque e Inicialización**: NestJS arranca y lee el archivo [app.module.ts](src/app.module.ts). TypeORM se inicializa con la opción `synchronize: true` configurada en la raíz.
-* **Escaneo de Entidades (Metadata Discovery)**: TypeORM busca todas las clases decoradas con `@Entity()` registradas en [bolsin.module.ts](src/bolsin/bolsin.module.ts). Traduce cada propiedad a su tipo de dato SQL correspondiente (por ejemplo, la relación `ManyToOne` en la entidad `Bolsin` para `origen` y `destino` que apuntan a la entidad `CM` se traduce en restricciones de clave foránea en la tabla `bolsin`).
+* **Arranque e Inicialización**: NestJS arranca y lee el archivo [app.module.ts](../backend/src/app.module.ts). TypeORM se inicializa con la opción `synchronize: true` configurada en la raíz.
+* **Escaneo de Entidades (Metadata Discovery)**: TypeORM busca todas las clases decoradas con `@Entity()` registradas en [bolsin.module.ts](../backend/src/bolsin/bolsin.module.ts). Traduce cada propiedad a su tipo de dato SQL correspondiente (por ejemplo, la relación `ManyToOne` en la entidad `Bolsin` para `origen` y `destino` que apuntan a la entidad `CM` se traduce en restricciones de clave foránea en la tabla `bolsin`).
 * **Inspección de la Base de Datos**: TypeORM consulta las tablas del sistema de PostgreSQL para inspeccionar el estado físico actual del esquema.
 * **Comparación e Inferencia**:
     * Si detecta que una tabla descrita en TypeScript (como `bolsin`, `empleado` o `cambio_estado_bolsin`) no existe en la base de datos, genera una consulta `CREATE TABLE`.

@@ -5,6 +5,8 @@ export interface CM {
   direccion: string;
   email: string;
   telefono: string;
+  latitud: number | null;
+  longitud: number | null;
 }
 
 export interface Rol {
@@ -70,16 +72,8 @@ export interface BolsinSeguimiento {
   numeroPrecinto: string;
   peso: number;
   fechaCreacion: string;
-  origen: {
-    id: number;
-    nombre: string;
-    codigo: string;
-  };
-  destino: {
-    id: number;
-    nombre: string;
-    codigo: string;
-  };
+  origen: CMUbicacion;
+  destino: CMUbicacion;
   latitud: number;
   longitud: number;
   fechaHoraActualizacion: string;
@@ -87,11 +81,15 @@ export interface BolsinSeguimiento {
   emailDestino: string;
 }
 
+export interface CMUbicacion {
+  id: number;
+  nombre: string;
+  codigo: string;
+  latitud: number | null;
+  longitud: number | null;
+}
+
 export interface SeguimientoResponse {
-  cmUsuario: {
-    id: number;
-    nombre: string;
-    codigo: string;
-  } | null;
+  cmUsuario: CMUbicacion | null;
   bolsines: BolsinSeguimiento[];
 }

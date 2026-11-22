@@ -31,7 +31,9 @@
       "nombre": "Comisión Médica Central",
       "direccion": "Calle Falsa 123",
       "email": "cm1@comision.gob.ar",
-      "telefono": "11-2222-3333"
+      "telefono": "11-2222-3333",
+      "latitud": -34.6237,
+      "longitud": -58.3616
     }
   },
   {
@@ -42,7 +44,9 @@
       "nombre": "Comisión Médica Norte",
       "direccion": "Av. Siempre Viva 742",
       "email": "cm2@comision.gob.ar",
-      "telefono": "11-4444-5555"
+      "telefono": "11-4444-5555",
+      "latitud": -34.56,
+      "longitud": -58.45
     }
   },
   {
@@ -53,7 +57,9 @@
       "nombre": "Comisión Médica Sur",
       "direccion": "Colón 999",
       "email": "cm3@comision.gob.ar",
-      "telefono": "11-6666-7777"
+      "telefono": "11-6666-7777",
+      "latitud": -34.66,
+      "longitud": -58.4
     }
   },
   {

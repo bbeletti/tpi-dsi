@@ -23,14 +23,77 @@
           <span style="position: absolute; display: inline-flex; height: 100%; width: 100%; border-radius: 9999px; background-color: #34d399; opacity: 0.75; animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></span>
           <span style="position: relative; display: inline-flex; border-radius: 9999px; height: 10px; width: 10px; background-color: #10b981;"></span>
         </span>
-        Radar de Posición Satelital GPS
+        Mapa de Posición GPS
       </h3>
       <span style="font-size: 11px; opacity: 0.5;">Actualización automática: 10s</span>
     </div>
     
-    <div class="map-canvas-container">
-      <canvas #mapCanvas class="map-canvas"></canvas>
+    <div class="map-container">
+      @if (mapsError()) {
+        <div class="map-message">{{ mapsError() }}</div>
+      } @else if (!mapsReady()) {
+        <div class="map-message">Cargando Google Maps…</div>
+      } @else {
+        <!-- Se recrea el mapa al cambiar el tema: el esquema de color solo se fija al crearlo -->
+        @for (scheme of [colorScheme()]; track scheme) {
+          <google-map
+            width="100%"
+            height="100%"
+            [center]="center"
+            [zoom]="zoom"
+            [options]="mapOptions()"
+            (mapInitialized)="onMapInitialized($event)"
+            (mapClick)="clearSelection()"
+          >
+            <!-- Recorrido CM origen → CM destino de cada bolsín -->
+            @for (b of bolsinesFiltrados; track b.id) {
+              @if (b.origen.latitud != null && b.destino.latitud != null) {
+                <map-polyline
+                  [path]="[
+                    { lat: b.origen.latitud, lng: b.origen.longitud! },
+                    { lat: b.destino.latitud, lng: b.destino.longitud! }
+                  ]"
+                  [options]="{
+                    geodesic: true,
+                    clickable: false,
+                    strokeColor: selectedBolsin()?.id === b.id ? '#ef4444' : '#3182ce',
+                    strokeOpacity: selectedBolsin()?.id === b.id ? 0.9 : 0.35,
+                    strokeWeight: selectedBolsin()?.id === b.id ? 4 : 2
+                  }"
+                />
+              }
+            }
+
+            <!-- Comisiones médicas -->
+            @for (cm of cmsConUbicacion(); track cm.id) {
+              <map-advanced-marker
+                [position]="{ lat: cm.latitud!, lng: cm.longitud! }"
+                [title]="cm.nombre + ' (' + cm.codigo + ')'"
+                [content]="cmContent(cm)"
+                [zIndex]="1"
+              />
+            }
+
+            <!-- CU 36 - Paso 6: bolsines en tránsito sobre el mapa -->
+            @for (b of bolsinesFiltrados; track b.id) {
+              <map-advanced-marker
+                [position]="{ lat: b.latitud, lng: b.longitud }"
+                [title]="'Precinto ' + b.numeroPrecinto + ' → ' + b.destino.nombre"
+                [content]="bolsinContent(b, selectedBolsin()?.id === b.id)"
+                [gmpClickable]="true"
+                [zIndex]="selectedBolsin()?.id === b.id ? 20 : 10"
+                (mapClick)="selectBolsin(b)"
+              />
+            }
+          </google-map>
+        }
+      }
     </div>
+    @if (sinApiKey()) {
+      <p class="map-warning">
+        Sin API key de Google Maps: el mapa funciona en modo desarrollo. Configurá <code>GOOGLE_MAPS_API_KEY</code> en el <code>.env</code>.
+      </p>
+    }
   </div>
 
   <!-- 3. Search Filters Card (Spans 1 col, 1 row) -->

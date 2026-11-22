@@ -147,12 +147,16 @@ export class SeguimientoController {
         origen: {
           id: bolsin.origen.id,
           nombre: bolsin.origen.obtenerNombre(),
-          codigo: bolsin.origen.codigo
+          codigo: bolsin.origen.codigo,
+          latitud: bolsin.origen.latitud,
+          longitud: bolsin.origen.longitud
         },
         destino: {
           id: bolsin.destino.id,
           nombre: bolsin.destino.obtenerNombre(),
-          codigo: bolsin.destino.codigo
+          codigo: bolsin.destino.codigo,
+          latitud: bolsin.destino.latitud,
+          longitud: bolsin.destino.longitud
         },
         latitud: lat,
         longitud: lng,
@@ -167,7 +171,9 @@ export class SeguimientoController {
       cmUsuario: {
         id: cmUsuario.id,
         nombre: cmUsuario.obtenerNombre(),
-        codigo: cmUsuario.codigo
+        codigo: cmUsuario.codigo,
+        latitud: cmUsuario.latitud,
+        longitud: cmUsuario.longitud
       },
       bolsines: result
     };

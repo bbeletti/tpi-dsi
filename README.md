@@ -47,7 +47,17 @@ LANG=es_AR.utf8
 POSTGRES_INITDB_ARGS="--locale-provider=icu --icu-locale=es-AR --auth-local=trust"
 POSTGRES_HOST_AUTH_METHOD=scram-sha-256
 PORT=8000
+GOOGLE_MAPS_API_KEY=
+GOOGLE_MAPS_MAP_ID=DEMO_MAP_ID
 ```
+
+### Google Maps
+
+La vista de seguimiento usa Google Maps JavaScript API. El backend entrega la key al frontend desde `GET /api/config`, así no queda escrita en el código.
+
+* **Sin key** (`GOOGLE_MAPS_API_KEY` vacío): el mapa funciona en modo desarrollo, oscurecido y con la marca de agua "For development purposes only".
+* **Con key**: crear una en Google Cloud Console con **Maps JavaScript API** habilitada y restringirla por HTTP referrer (por ejemplo `http://localhost:4200/*`). Después reiniciar el backend: `docker compose restart backend`.
+* `GOOGLE_MAPS_MAP_ID`: `DEMO_MAP_ID` es el Map ID de prueba de Google y alcanza para los markers. Para personalizar el estilo del mapa se puede crear un Map ID propio.
 
 ---
 

@@ -1,20 +1,26 @@
-import { Component, OnInit, OnDestroy, inject, signal, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { GoogleMap, MapAdvancedMarker, MapPolyline } from '@angular/google-maps';
 import { ApiService } from '../services/api.service';
-import { BolsinSeguimiento } from '../models';
+import { GoogleMapsLoaderService } from '../services/google-maps-loader.service';
+import { ThemeService } from '../services/theme.service';
+import { BolsinSeguimiento, CM } from '../models';
 
 @Component({
   selector: 'app-seguimiento',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, GoogleMap, MapAdvancedMarker, MapPolyline],
   templateUrl: './seguimiento.html',
 })
-export class Seguimiento implements OnInit, OnDestroy, AfterViewInit {
+export class Seguimiento implements OnInit, OnDestroy {
   private api = inject(ApiService);
+  private mapsLoader = inject(GoogleMapsLoaderService);
+  private theme = inject(ThemeService);
 
   protected readonly cmUsuario = signal<{ id: number; nombre: string; codigo: string } | null>(null);
   protected readonly bolsines = signal<BolsinSeguimiento[]>([]);
+  protected readonly cms = signal<CM[]>([]);
 
   // Filter states
   protected readonly filtroPrecinto = signal<string>('');
@@ -25,20 +31,53 @@ export class Seguimiento implements OnInit, OnDestroy, AfterViewInit {
   protected readonly showToast = signal<boolean>(false);
   protected readonly toastMessage = signal<string>('');
 
-  // Canvas element ref for drawing the map
-  @ViewChild('mapCanvas', { static: false }) mapCanvas!: ElementRef<HTMLCanvasElement>;
-  private animationId: number | null = null;
-  private refreshInterval: any = null;
-  private pulseSize = 0;
-  private pulseDir = 1;
+  // Google Maps
+  // Instancia actual del mapa (cambia cuando se recrea al cambiar el tema)
+  private googleMap?: google.maps.Map;
+  protected readonly mapsReady = signal(false);
+  protected readonly mapsError = signal<string | null>(null);
+  protected readonly sinApiKey = this.mapsLoader.sinApiKey;
+  private readonly mapId = signal('DEMO_MAP_ID');
+  protected readonly center: google.maps.LatLngLiteral = { lat: -34.61, lng: -58.41 };
+  protected readonly zoom = 12;
+  private boundsFitted = false;
 
-  private readonly commissions = [
-    { name: 'CM Central', code: 'CM-01', lat: -34.6237, lng: -58.3616, x: 0, y: 0 },
-    { name: 'CM Norte', code: 'CM-02', lat: -34.5600, lng: -58.4500, x: 0, y: 0 },
-    { name: 'CM Sur', code: 'CM-03', lat: -34.6600, lng: -58.400, x: 0, y: 0 },
-  ];
+  // El esquema de color de Google Maps solo se puede fijar al crear el mapa:
+  // el template recrea el mapa cuando cambia el tema.
+  protected readonly colorScheme = computed(() => (this.theme.isLightTheme() ? 'LIGHT' : 'DARK'));
+  protected readonly mapOptions = computed<google.maps.MapOptions>(() => ({
+    mapId: this.mapId(),
+    colorScheme: this.colorScheme(),
+    clickableIcons: false,
+    streetViewControl: false,
+    mapTypeControl: false,
+    fullscreenControl: true,
+  }));
+
+  // Elementos HTML de los markers, cacheados para que Angular no los recree en cada detección de cambios
+  private markerContentCache = new Map<string, HTMLElement>();
+  private refreshInterval: ReturnType<typeof setInterval> | null = null;
 
   ngOnInit() {
+    this.mapsLoader
+      .load()
+      .then((config) => {
+        this.mapId.set(config.googleMapsMapId);
+        this.mapsReady.set(true);
+      })
+      .catch((err) => {
+        console.error(err);
+        this.mapsError.set('No se pudo cargar Google Maps. Revisá la conexión y la configuración de la API key.');
+      });
+
+    this.api.getCMs().subscribe({
+      next: (cms) => {
+        this.cms.set(cms);
+        this.fitBoundsOnce();
+      },
+      error: (err) => console.error('Error al consultar comisiones médicas:', err),
+    });
+
     this.loadData();
     // Auto-refresh from backend every 10 seconds
     this.refreshInterval = setInterval(() => {
@@ -50,13 +89,6 @@ export class Seguimiento implements OnInit, OnDestroy, AfterViewInit {
     if (this.refreshInterval) {
       clearInterval(this.refreshInterval);
     }
-    if (this.animationId) {
-      cancelAnimationFrame(this.animationId);
-    }
-  }
-
-  ngAfterViewInit() {
-    this.startMapAnimation();
   }
 
   loadData() {
@@ -70,6 +102,7 @@ export class Seguimiento implements OnInit, OnDestroy, AfterViewInit {
           const updated = res.bolsines.find(b => b.id === this.selectedBolsin()!.id);
           this.selectedBolsin.set(updated || null);
         }
+        this.fitBoundsOnce();
       },
       error: (err) => console.error('Error al consultar seguimiento:', err)
     });
@@ -87,8 +120,10 @@ export class Seguimiento implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
+  // CU 36 - Paso 7: el EB selecciona un bolsín del mapa (o del listado)
   selectBolsin(bolsin: BolsinSeguimiento) {
     this.selectedBolsin.set(bolsin);
+    this.googleMap?.panTo({ lat: bolsin.latitud, lng: bolsin.longitud });
   }
 
   clearSelection() {
@@ -119,236 +154,69 @@ export class Seguimiento implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  // Map drawing and animation loop
-  private startMapAnimation() {
-    const canvas = this.mapCanvas.nativeElement;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+  // ---- Google Maps ----
 
-    // Resize canvas to its display size
-    const resizeCanvas = () => {
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width * window.devicePixelRatio;
-      canvas.height = 400 * window.devicePixelRatio; // Fixed display height
-      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-    };
+  onMapInitialized(map: google.maps.Map) {
+    // Cada vez que se recrea el mapa (por ejemplo, al cambiar el tema) se vuelve a encuadrar
+    this.googleMap = map;
+    this.boundsFitted = false;
+    this.fitBoundsOnce();
+  }
 
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
+  /** Encuadra el mapa para que se vean todas las CM y los bolsines, una sola vez por mapa. */
+  private fitBoundsOnce() {
+    const map = this.googleMap;
+    if (this.boundsFitted || !map) return;
 
-    const render = () => {
-      const w = canvas.width / window.devicePixelRatio;
-      const h = 400; // Display height
+    const puntos: google.maps.LatLngLiteral[] = [
+      ...this.cmsConUbicacion().map((cm) => ({ lat: cm.latitud!, lng: cm.longitud! })),
+      ...this.bolsines().map((b) => ({ lat: b.latitud, lng: b.longitud })),
+    ];
+    if (puntos.length < 2) return;
 
-      ctx.clearRect(0, 0, w, h);
+    const bounds = new google.maps.LatLngBounds();
+    puntos.forEach((p) => bounds.extend(p));
+    map.fitBounds(bounds, 48);
+    this.boundsFitted = true;
+  }
 
-      const isLight = document.body.classList.contains('light-theme');
+  cmsConUbicacion(): CM[] {
+    return this.cms().filter((cm) => cm.latitud != null && cm.longitud != null);
+  }
 
-      // 1. Draw Radar Grid
-      ctx.strokeStyle = isLight ? 'rgba(148, 163, 184, 0.2)' : 'rgba(74, 85, 104, 0.15)';
-      ctx.lineWidth = 1;
-      // Vertical lines
-      for (let x = 0; x < w; x += 40) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, h);
-        ctx.stroke();
-      }
-      // Horizontal lines
-      for (let y = 0; y < h; y += 40) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(w, y);
-        ctx.stroke();
-      }
-
-      // Map Coordinate helper
-      const mapCoords = (lat: number, lng: number) => {
-        const minLat = -34.68;
-        const maxLat = -34.54;
-        const minLng = -58.47;
-        const maxLng = -58.31;
-
-        const pctY = (lat - maxLat) / (minLat - maxLat);
-        const pctX = (lng - minLng) / (maxLng - minLng);
-
-        return {
-          x: 60 + pctX * (w - 120),
-          y: 50 + pctY * (h - 100)
-        };
-      };
-
-      // 2. Draw paths between commissions
-      ctx.strokeStyle = isLight ? 'rgba(49, 130, 206, 0.35)' : 'rgba(66, 153, 225, 0.25)';
-      ctx.lineWidth = 3;
-      ctx.setLineDash([5, 5]);
-
-      const c1 = mapCoords(this.commissions[0].lat, this.commissions[0].lng);
-      const c2 = mapCoords(this.commissions[1].lat, this.commissions[1].lng);
-      const c3 = mapCoords(this.commissions[2].lat, this.commissions[2].lng);
-
-      ctx.beginPath();
-      ctx.moveTo(c1.x, c1.y);
-      ctx.lineTo(c2.x, c2.y);
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(c2.x, c2.y);
-      ctx.lineTo(c3.x, c3.y);
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(c1.x, c1.y);
-      ctx.lineTo(c3.x, c3.y);
-      ctx.stroke();
-
-      ctx.setLineDash([]); // Reset
-
-      // 3. Draw commission nodes
-      this.commissions.forEach((cm) => {
-        const pos = mapCoords(cm.lat, cm.lng);
-        cm.x = pos.x;
-        cm.y = pos.y;
-
-        // Outer glow
-        ctx.fillStyle = isLight ? 'rgba(49, 130, 206, 0.1)' : 'rgba(66, 153, 225, 0.15)';
-        ctx.beginPath();
-        ctx.arc(pos.x, pos.y, 16, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Node center
-        ctx.fillStyle = '#3182ce';
-        ctx.beginPath();
-        ctx.arc(pos.x, pos.y, 7, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Border
-        ctx.strokeStyle = isLight ? '#f1f5f9' : '#fff';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(pos.x, pos.y, 7, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // Label
-        ctx.fillStyle = isLight ? '#475569' : '#cbd5e1';
-        ctx.font = 'bold 11px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(cm.name, pos.x, pos.y - 12);
-      });
-
-      // Update pulse animation size
-      this.pulseSize += 0.25 * this.pulseDir;
-      if (this.pulseSize > 12 || this.pulseSize < 0) {
-        this.pulseDir *= -1;
-      }
-
-      const drawnLabels: { x: number; y: number }[] = [];
-
-      // 4. Draw bolsines in transit (based on filtered list)
-      this.bolsinesFiltrados.forEach((bolsin: BolsinSeguimiento) => {
-        const pos = mapCoords(bolsin.latitud, bolsin.longitud);
-
-        const isSelected = this.selectedBolsin()?.id === bolsin.id;
-
-        // Draw animated pulse ring
-        ctx.strokeStyle = isSelected ? 'rgba(239, 68, 68, 0.8)' : 'rgba(16, 185, 129, 0.8)';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.arc(pos.x, pos.y, 8 + this.pulseSize, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // Inner solid core
-        ctx.fillStyle = isSelected ? '#ef4444' : '#10b981';
-        ctx.beginPath();
-        ctx.arc(pos.x, pos.y, 5, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.strokeStyle = isLight ? '#f1f5f9' : '#fff';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.arc(pos.x, pos.y, 5, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // Decollision logic: stack labels vertically if coordinates are identical/too close
-        const isNorteSur = (bolsin.origen.codigo === 'CM-02' && bolsin.destino.codigo === 'CM-03') || 
-                           (bolsin.origen.codigo === 'CM-03' && bolsin.destino.codigo === 'CM-02');
-        let labelX = isNorteSur ? pos.x - 8 : pos.x + 8;
-        let labelY = pos.y + 3;
-        let attempts = 0;
-        while (attempts < 10) {
-          const collides = drawnLabels.some(d =>
-            Math.abs(d.y - labelY) < 11 && Math.abs(d.x - labelX) < 85
-          );
-          if (!collides) {
-            break;
-          }
-          labelY += 12; // Shift down
-          attempts++;
-        }
-        drawnLabels.push({ x: labelX, y: labelY });
-
-        // Draw subtle connector line if label is shifted
-        if (labelY !== pos.y + 3) {
-          ctx.strokeStyle = isLight ? 'rgba(74, 85, 104, 0.25)' : 'rgba(203, 213, 225, 0.25)';
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(pos.x, pos.y);
-          ctx.lineTo(isNorteSur ? labelX + 2 : labelX - 2, labelY - 3);
-          ctx.stroke();
-        }
-
-        // Label with precinto and destination
-        ctx.font = isSelected ? 'bold 10px sans-serif' : '9px sans-serif';
-        ctx.textAlign = isNorteSur ? 'right' : 'left';
-
-        const labelText = `${bolsin.numeroPrecinto} → ${bolsin.destino.codigo}`;
-        ctx.fillStyle = isSelected ? (isLight ? '#dc2626' : '#f87171') : (isLight ? '#047857' : '#a7f3d0');
-        ctx.fillText(labelText, labelX, labelY);
-      });
-
-      this.animationId = requestAnimationFrame(render);
-    };
-
-    // Canvas click handler to select a bolsin
-    canvas.addEventListener('mousedown', (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
-      const mapCoords = (lat: number, lng: number) => {
-        const minLat = -34.68;
-        const maxLat = -34.54;
-        const minLng = -58.47;
-        const maxLng = -58.31;
-        const w = rect.width;
-        const h = rect.height;
-
-        const pctY = (lat - maxLat) / (minLat - maxLat);
-        const pctX = (lng - minLng) / (maxLng - minLng);
-
-        return {
-          x: 60 + pctX * (w - 120),
-          y: 50 + pctY * (h - 100)
-        };
-      };
-
-      // Check if clicked near any bolsin
-      let found = false;
-      this.bolsinesFiltrados.forEach((bolsin: BolsinSeguimiento) => {
-        const pos = mapCoords(bolsin.latitud, bolsin.longitud);
-        const dist = Math.sqrt((x - pos.x) ** 2 + (y - pos.y) ** 2);
-        if (dist <= 15) {
-          this.selectBolsin(bolsin);
-          found = true;
-        }
-      });
-
-      if (!found) {
-        // Clear selection if clicked elsewhere on canvas
-        this.clearSelection();
-      }
+  cmContent(cm: CM): HTMLElement {
+    return this.cachedElement(`cm-${cm.id}`, () => {
+      const el = document.createElement('div');
+      el.className = 'gm-cm';
+      el.innerHTML = '<span class="gm-cm-dot"></span><span class="gm-label"></span>';
+      el.querySelector('.gm-label')!.textContent = cm.nombre;
+      return el;
     });
+  }
 
-    render();
+  bolsinContent(bolsin: BolsinSeguimiento, selected: boolean): HTMLElement {
+    // Bolsines en la misma posición: se apilan las etiquetas para que no se pisen
+    const stack = this.bolsinesFiltrados
+      .filter((b) => b.latitud === bolsin.latitud && b.longitud === bolsin.longitud)
+      .findIndex((b) => b.id === bolsin.id);
+
+    return this.cachedElement(`bolsin-${bolsin.id}-${selected}-${stack}`, () => {
+      const el = document.createElement('div');
+      el.className = selected ? 'gm-bolsin selected' : 'gm-bolsin';
+      el.innerHTML = '<span class="gm-bolsin-dot"></span><span class="gm-label"></span>';
+      const label = el.querySelector<HTMLElement>('.gm-label')!;
+      label.textContent = `${bolsin.numeroPrecinto} → ${bolsin.destino.codigo}`;
+      label.style.marginTop = `${stack * 18}px`;
+      return el;
+    });
+  }
+
+  private cachedElement(key: string, crear: () => HTMLElement): HTMLElement {
+    let el = this.markerContentCache.get(key);
+    if (!el) {
+      el = crear();
+      this.markerContentCache.set(key, el);
+    }
+    return el;
   }
 }

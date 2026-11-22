@@ -18,7 +18,7 @@ La aplicación simula y resuelve el flujo de control para el seguimiento de bols
   * **Model XTR-4500L**: Llama a `getBolsinLocation()`, que requiere una API Key y devuelve un JSON en formato cadena de caracteres.
   * **Model NavTrack QX-7A**: Llama a `retrieveTrackingData()`, que retorna un String con valores separados por comas (CSV).
   * **Model GeoPulse MTR-900**: Llama a `fetchCargoPositions()`, que retorna una estructura matricial (array bidimensional).
-* **Monitoreo en Tiempo Real**: Dibuja sobre un plano interactivo (HTML Canvas) la posición en tiempo real de los bolsines en tránsito con efectos de radar y colisiones inteligentes de etiquetas.
+* **Monitoreo en Tiempo Real**: Muestra en Google Maps las posiciones de las Comisiones Médicas y de los bolsines en tránsito, actualizadas cada 10 segundos.
 * **Caso de Uso 31 - Notificar Ubicación**: Permite al Encargado de Bolsines enviar alertas por correo electrónico directamente al Gerente de la Comisión Médica (GCM) de destino informando la ubicación del precinto seleccionado.
 
 ---
@@ -47,7 +47,10 @@ LANG=es_AR.utf8
 POSTGRES_INITDB_ARGS="--locale-provider=icu --icu-locale=es-AR --auth-local=trust"
 POSTGRES_HOST_AUTH_METHOD=scram-sha-256
 PORT=8000
+GOOGLE_MAPS_API_KEY=tu_api_key_de_google_maps
 ```
+
+La API key se lee en tiempo de ejecución por el backend y se entrega al navegador para inicializar Google Maps. No la guardes en el repositorio. Al ser una clave de uso web, restringila en Google Cloud por los dominios/referrers autorizados y habilitá Maps JavaScript API.
 
 ---
 
@@ -77,7 +80,7 @@ docker compose run --rm seed
 
 Una vez que el despliegue esté completado con éxito, los puertos locales expuestos son:
 
-* **Frontend (Angular)**: [http://localhost:4200](http://localhost:4200) (interfaz interactiva del mapa de radar).
+* **Frontend (Angular)**: [http://localhost:4200](http://localhost:4200) (interfaz interactiva del mapa de seguimiento).
 * **Backend API (NestJS)**: [http://localhost:8000/api](http://localhost:8000/api) (ruta raíz del backend).
 * **Prueba de Datos Rápida**: [http://localhost:8000/bolsines-test](http://localhost:8000/bolsines-test) (endpoint rápido del controlador raíz para verificar el estado de los bolsines cargados).
 * **Base de Datos PostgreSQL (Host local)**:

@@ -1,20 +1,39 @@
-import { Component, OnInit, OnDestroy, inject, signal, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { GoogleMapsModule } from '@angular/google-maps';
 import { ApiService } from '../services/api.service';
-import { BolsinSeguimiento } from '../models';
+import { GoogleMapsLoaderService } from '../services/google-maps-loader.service';
+import { BolsinSeguimiento, CM } from '../models';
+
+interface CommissionWithCoordinates extends CM {
+  latitud: number;
+  longitud: number;
+}
 
 @Component({
   selector: 'app-seguimiento',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, GoogleMapsModule],
   templateUrl: './seguimiento.html',
 })
-export class Seguimiento implements OnInit, OnDestroy, AfterViewInit {
-  private api = inject(ApiService);
+export class Seguimiento implements OnInit, OnDestroy {
+  private readonly api = inject(ApiService);
+  private readonly googleMapsLoader = inject(GoogleMapsLoaderService);
 
   protected readonly cmUsuario = signal<{ id: number; nombre: string; codigo: string } | null>(null);
   protected readonly bolsines = signal<BolsinSeguimiento[]>([]);
+  protected readonly commissions = signal<CM[]>([]);
+  protected readonly mapsLoaded = signal(false);
+  protected readonly mapError = signal<string | null>(null);
+  protected readonly cmMarkerIcon = 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png';
+  protected readonly bolsinMarkerIcon = 'https://maps.google.com/mapfiles/ms/icons/green-dot.png';
+  protected readonly selectedMarkerIcon = 'https://maps.google.com/mapfiles/ms/icons/red-dot.png';
+  protected readonly mapOptions = {
+    mapTypeControl: true,
+    streetViewControl: false,
+    fullscreenControl: true,
+  };
 
   // Filter states
   protected readonly filtroPrecinto = signal<string>('');
@@ -25,21 +44,11 @@ export class Seguimiento implements OnInit, OnDestroy, AfterViewInit {
   protected readonly showToast = signal<boolean>(false);
   protected readonly toastMessage = signal<string>('');
 
-  // Canvas element ref for drawing the map
-  @ViewChild('mapCanvas', { static: false }) mapCanvas!: ElementRef<HTMLCanvasElement>;
-  private animationId: number | null = null;
-  private refreshInterval: any = null;
-  private pulseSize = 0;
-  private pulseDir = 1;
-
-  private readonly commissions = [
-    { name: 'CM Central', code: 'CM-01', lat: -34.6237, lng: -58.3616, x: 0, y: 0 },
-    { name: 'CM Norte', code: 'CM-02', lat: -34.5600, lng: -58.4500, x: 0, y: 0 },
-    { name: 'CM Sur', code: 'CM-03', lat: -34.6600, lng: -58.400, x: 0, y: 0 },
-  ];
+  private refreshInterval: ReturnType<typeof setInterval> | null = null;
 
   ngOnInit() {
     this.loadData();
+    this.loadMapConfiguration();
     // Auto-refresh from backend every 10 seconds
     this.refreshInterval = setInterval(() => {
       this.loadData();
@@ -50,13 +59,51 @@ export class Seguimiento implements OnInit, OnDestroy, AfterViewInit {
     if (this.refreshInterval) {
       clearInterval(this.refreshInterval);
     }
-    if (this.animationId) {
-      cancelAnimationFrame(this.animationId);
-    }
   }
 
-  ngAfterViewInit() {
-    this.startMapAnimation();
+  get mapCenter(): { lat: number; lng: number } {
+    const userCommission = this.commissionsWithCoordinates.find(cm => cm.id === this.cmUsuario()?.id);
+    const commission = userCommission ?? this.commissionsWithCoordinates[0];
+    return commission
+      ? { lat: commission.latitud, lng: commission.longitud }
+      : { lat: -34.6037, lng: -58.3816 };
+  }
+
+  get commissionsWithCoordinates(): CommissionWithCoordinates[] {
+    return this.commissions().filter(
+      (cm): cm is CommissionWithCoordinates => cm.latitud !== null && cm.longitud !== null,
+    );
+  }
+
+  private loadMapConfiguration() {
+    this.api.getCMs().subscribe({
+      next: (cms) => this.commissions.set(cms),
+      error: (err) => {
+        console.error('Error al consultar las Comisiones Médicas:', err);
+        this.mapError.set('No se pudieron cargar las coordenadas de las Comisiones Médicas.');
+      },
+    });
+
+    this.api.getGoogleMapsConfig().subscribe({
+      next: ({ apiKey }) => {
+        if (!apiKey.trim()) {
+          this.mapError.set('Configura GOOGLE_MAPS_API_KEY en el entorno del backend para mostrar el mapa.');
+          return;
+        }
+
+        this.googleMapsLoader.load(apiKey).then(
+          () => this.mapsLoaded.set(true),
+          (err: unknown) => {
+            console.error('Error al cargar Google Maps:', err);
+            this.mapError.set('No se pudo cargar Google Maps. Verifica la API key y sus restricciones.');
+          },
+        );
+      },
+      error: (err) => {
+        console.error('Error al consultar la configuración de Google Maps:', err);
+        this.mapError.set('No se pudo consultar la configuración de Google Maps.');
+      },
+    });
   }
 
   loadData() {
@@ -91,6 +138,14 @@ export class Seguimiento implements OnInit, OnDestroy, AfterViewInit {
     this.selectedBolsin.set(bolsin);
   }
 
+  bolsinPosition(bolsin: BolsinSeguimiento) {
+    return { lat: bolsin.latitud, lng: bolsin.longitud };
+  }
+
+  commissionPosition(commission: CommissionWithCoordinates) {
+    return { lat: commission.latitud, lng: commission.longitud };
+  }
+
   clearSelection() {
     this.selectedBolsin.set(null);
   }
@@ -117,238 +172,5 @@ export class Seguimiento implements OnInit, OnDestroy, AfterViewInit {
         alert('No se pudo enviar la notificación por correo electrónico.');
       }
     });
-  }
-
-  // Map drawing and animation loop
-  private startMapAnimation() {
-    const canvas = this.mapCanvas.nativeElement;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // Resize canvas to its display size
-    const resizeCanvas = () => {
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width * window.devicePixelRatio;
-      canvas.height = 400 * window.devicePixelRatio; // Fixed display height
-      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-    };
-
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-
-    const render = () => {
-      const w = canvas.width / window.devicePixelRatio;
-      const h = 400; // Display height
-
-      ctx.clearRect(0, 0, w, h);
-
-      const isLight = document.body.classList.contains('light-theme');
-
-      // 1. Draw Radar Grid
-      ctx.strokeStyle = isLight ? 'rgba(148, 163, 184, 0.2)' : 'rgba(74, 85, 104, 0.15)';
-      ctx.lineWidth = 1;
-      // Vertical lines
-      for (let x = 0; x < w; x += 40) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, h);
-        ctx.stroke();
-      }
-      // Horizontal lines
-      for (let y = 0; y < h; y += 40) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(w, y);
-        ctx.stroke();
-      }
-
-      // Map Coordinate helper
-      const mapCoords = (lat: number, lng: number) => {
-        const minLat = -34.68;
-        const maxLat = -34.54;
-        const minLng = -58.47;
-        const maxLng = -58.31;
-
-        const pctY = (lat - maxLat) / (minLat - maxLat);
-        const pctX = (lng - minLng) / (maxLng - minLng);
-
-        return {
-          x: 60 + pctX * (w - 120),
-          y: 50 + pctY * (h - 100)
-        };
-      };
-
-      // 2. Draw paths between commissions
-      ctx.strokeStyle = isLight ? 'rgba(49, 130, 206, 0.35)' : 'rgba(66, 153, 225, 0.25)';
-      ctx.lineWidth = 3;
-      ctx.setLineDash([5, 5]);
-
-      const c1 = mapCoords(this.commissions[0].lat, this.commissions[0].lng);
-      const c2 = mapCoords(this.commissions[1].lat, this.commissions[1].lng);
-      const c3 = mapCoords(this.commissions[2].lat, this.commissions[2].lng);
-
-      ctx.beginPath();
-      ctx.moveTo(c1.x, c1.y);
-      ctx.lineTo(c2.x, c2.y);
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(c2.x, c2.y);
-      ctx.lineTo(c3.x, c3.y);
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(c1.x, c1.y);
-      ctx.lineTo(c3.x, c3.y);
-      ctx.stroke();
-
-      ctx.setLineDash([]); // Reset
-
-      // 3. Draw commission nodes
-      this.commissions.forEach((cm) => {
-        const pos = mapCoords(cm.lat, cm.lng);
-        cm.x = pos.x;
-        cm.y = pos.y;
-
-        // Outer glow
-        ctx.fillStyle = isLight ? 'rgba(49, 130, 206, 0.1)' : 'rgba(66, 153, 225, 0.15)';
-        ctx.beginPath();
-        ctx.arc(pos.x, pos.y, 16, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Node center
-        ctx.fillStyle = '#3182ce';
-        ctx.beginPath();
-        ctx.arc(pos.x, pos.y, 7, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Border
-        ctx.strokeStyle = isLight ? '#f1f5f9' : '#fff';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(pos.x, pos.y, 7, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // Label
-        ctx.fillStyle = isLight ? '#475569' : '#cbd5e1';
-        ctx.font = 'bold 11px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(cm.name, pos.x, pos.y - 12);
-      });
-
-      // Update pulse animation size
-      this.pulseSize += 0.25 * this.pulseDir;
-      if (this.pulseSize > 12 || this.pulseSize < 0) {
-        this.pulseDir *= -1;
-      }
-
-      const drawnLabels: { x: number; y: number }[] = [];
-
-      // 4. Draw bolsines in transit (based on filtered list)
-      this.bolsinesFiltrados.forEach((bolsin: BolsinSeguimiento) => {
-        const pos = mapCoords(bolsin.latitud, bolsin.longitud);
-
-        const isSelected = this.selectedBolsin()?.id === bolsin.id;
-
-        // Draw animated pulse ring
-        ctx.strokeStyle = isSelected ? 'rgba(239, 68, 68, 0.8)' : 'rgba(16, 185, 129, 0.8)';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.arc(pos.x, pos.y, 8 + this.pulseSize, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // Inner solid core
-        ctx.fillStyle = isSelected ? '#ef4444' : '#10b981';
-        ctx.beginPath();
-        ctx.arc(pos.x, pos.y, 5, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.strokeStyle = isLight ? '#f1f5f9' : '#fff';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.arc(pos.x, pos.y, 5, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // Decollision logic: stack labels vertically if coordinates are identical/too close
-        const isNorteSur = (bolsin.origen.codigo === 'CM-02' && bolsin.destino.codigo === 'CM-03') || 
-                           (bolsin.origen.codigo === 'CM-03' && bolsin.destino.codigo === 'CM-02');
-        let labelX = isNorteSur ? pos.x - 8 : pos.x + 8;
-        let labelY = pos.y + 3;
-        let attempts = 0;
-        while (attempts < 10) {
-          const collides = drawnLabels.some(d =>
-            Math.abs(d.y - labelY) < 11 && Math.abs(d.x - labelX) < 85
-          );
-          if (!collides) {
-            break;
-          }
-          labelY += 12; // Shift down
-          attempts++;
-        }
-        drawnLabels.push({ x: labelX, y: labelY });
-
-        // Draw subtle connector line if label is shifted
-        if (labelY !== pos.y + 3) {
-          ctx.strokeStyle = isLight ? 'rgba(74, 85, 104, 0.25)' : 'rgba(203, 213, 225, 0.25)';
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(pos.x, pos.y);
-          ctx.lineTo(isNorteSur ? labelX + 2 : labelX - 2, labelY - 3);
-          ctx.stroke();
-        }
-
-        // Label with precinto and destination
-        ctx.font = isSelected ? 'bold 10px sans-serif' : '9px sans-serif';
-        ctx.textAlign = isNorteSur ? 'right' : 'left';
-
-        const labelText = `${bolsin.numeroPrecinto} → ${bolsin.destino.codigo}`;
-        ctx.fillStyle = isSelected ? (isLight ? '#dc2626' : '#f87171') : (isLight ? '#047857' : '#a7f3d0');
-        ctx.fillText(labelText, labelX, labelY);
-      });
-
-      this.animationId = requestAnimationFrame(render);
-    };
-
-    // Canvas click handler to select a bolsin
-    canvas.addEventListener('mousedown', (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
-      const mapCoords = (lat: number, lng: number) => {
-        const minLat = -34.68;
-        const maxLat = -34.54;
-        const minLng = -58.47;
-        const maxLng = -58.31;
-        const w = rect.width;
-        const h = rect.height;
-
-        const pctY = (lat - maxLat) / (minLat - maxLat);
-        const pctX = (lng - minLng) / (maxLng - minLng);
-
-        return {
-          x: 60 + pctX * (w - 120),
-          y: 50 + pctY * (h - 100)
-        };
-      };
-
-      // Check if clicked near any bolsin
-      let found = false;
-      this.bolsinesFiltrados.forEach((bolsin: BolsinSeguimiento) => {
-        const pos = mapCoords(bolsin.latitud, bolsin.longitud);
-        const dist = Math.sqrt((x - pos.x) ** 2 + (y - pos.y) ** 2);
-        if (dist <= 15) {
-          this.selectBolsin(bolsin);
-          found = true;
-        }
-      });
-
-      if (!found) {
-        // Clear selection if clicked elsewhere on canvas
-        this.clearSelection();
-      }
-    });
-
-    render();
   }
 }

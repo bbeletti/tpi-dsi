@@ -5,6 +5,8 @@ export interface CM {
   direccion: string;
   email: string;
   telefono: string;
+  latitud: number | null;
+  longitud: number | null;
 }
 
 export interface Rol {

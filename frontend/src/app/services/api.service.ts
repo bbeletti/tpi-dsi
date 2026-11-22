@@ -21,6 +21,10 @@ export class ApiService {
     return this.http.get<CM[]>(`${this.apiUrl}/cms`);
   }
 
+  getGoogleMapsConfig(): Observable<{ apiKey: string }> {
+    return this.http.get<{ apiKey: string }>(`${this.apiUrl}/config/google-maps`);
+  }
+
   // Empleados
   getEmpleados(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/empleados`);

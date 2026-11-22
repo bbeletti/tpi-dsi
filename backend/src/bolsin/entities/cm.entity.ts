@@ -20,6 +20,12 @@ export class CM {
   @Column({ length: 50 })
   telefono: string;
 
+  @Column('double precision', { nullable: true })
+  latitud: number | null;
+
+  @Column('double precision', { nullable: true })
+  longitud: number | null;
+
   obtenerNombre(): string {
     return this.nombre;
   }

@@ -7,7 +7,7 @@ import { GoogleMapsLoaderService } from '../services/google-maps-loader.service'
 import { ThemeService } from '../services/theme.service';
 import { BolsinSeguimiento, CM } from '../models';
 
-/** Zoom máximo al encuadrar un bolsín seleccionado y su destino. */
+/** Zoom máximo al encuadrar el recorrido de un bolsín seleccionado. */
 const ZOOM_MAXIMO_SELECCION = 11;
 
 /** Recorrido de un bolsín partido en su posición actual. */
@@ -157,23 +157,28 @@ export class Seguimiento implements OnInit, OnDestroy {
   // CU 36 - Paso 7: el EB selecciona un bolsín del mapa (o del listado)
   selectBolsin(bolsin: BolsinSeguimiento) {
     this.selectedBolsin.set(bolsin);
-    this.encuadrarHastaDestino(bolsin);
+    this.encuadrarRecorridoCompleto(bolsin);
   }
 
   /**
-   * Zoom automático: encuadra la posición actual del bolsín, el tramo que le falta
-   * recorrer y la CM destino (punto de entrega), todo en la misma pantalla.
+   * Zoom automático: encuadra la ruta completa del bolsín, desde la CM origen hasta
+   * la CM destino (punto de entrega), con su posición actual en el medio. Así se ve
+   * cuánto avanzó y cuánto le falta, todo en la misma pantalla.
    */
-  private encuadrarHastaDestino(bolsin: BolsinSeguimiento) {
+  private encuadrarRecorridoCompleto(bolsin: BolsinSeguimiento) {
     const map = this.googleMap;
     if (!map) return;
 
-    // Copia: no se modifica el tramo cacheado
+    const tramos = this.tramos()[bolsin.id];
     const puntos: google.maps.LatLngLiteral[] = [
-      ...(this.tramos()[bolsin.id]?.restante ?? [{ lat: bolsin.latitud, lng: bolsin.longitud }]),
+      ...(tramos?.recorrido ?? []),
+      ...(tramos?.restante ?? []),
+      { lat: bolsin.latitud, lng: bolsin.longitud },
     ];
-    if (bolsin.destino.latitud != null && bolsin.destino.longitud != null) {
-      puntos.push({ lat: bolsin.destino.latitud, lng: bolsin.destino.longitud });
+    for (const cm of [bolsin.origen, bolsin.destino]) {
+      if (cm.latitud != null && cm.longitud != null) {
+        puntos.push({ lat: cm.latitud, lng: cm.longitud });
+      }
     }
 
     const bounds = new google.maps.LatLngBounds();
@@ -181,7 +186,7 @@ export class Seguimiento implements OnInit, OnDestroy {
     // Margen extra abajo para las etiquetas que van debajo de cada marker
     map.fitBounds(bounds, { top: 60, right: 60, bottom: 80, left: 60 });
 
-    // Si el destino está muy cerca no se acerca de más: se mantiene el contexto de la zona
+    // Si origen y destino están muy cerca no se acerca de más: se mantiene el contexto de la zona
     google.maps.event.addListenerOnce(map, 'idle', () => {
       if ((map.getZoom() ?? 0) > ZOOM_MAXIMO_SELECCION) {
         map.setZoom(ZOOM_MAXIMO_SELECCION);

@@ -28,8 +28,28 @@
       <span style="font-size: 11px; opacity: 0.5;">Actualización automática: 10s</span>
     </div>
     
-    <div class="map-canvas-container">
-      <canvas #mapCanvas class="map-canvas"></canvas>
+    <div class="map-canvas-container" style="height: 400px; width: 100%;">
+      <google-map *ngIf="mapsLoaded(); else mapsLoading"
+                  [center]="mapCenter()"
+                  [zoom]="mapZoom()"
+                  height="100%"
+                  width="100%"
+                  (mapClick)="clearSelection()">
+        <map-marker *ngFor="let cm of cmMarkers()"
+                    [position]="{ lat: cm.latitud, lng: cm.longitud }"
+                    [title]="cm.nombre"
+                    [options]="cmMarkerOptions()"></map-marker>
+        <map-marker *ngFor="let b of bolsinesFiltrados"
+                    [position]="{ lat: b.latitud, lng: b.longitud }"
+                    [title]="b.numeroPrecinto + ' -> ' + b.destino.codigo"
+                    [options]="markerOptions(b)"
+                    (mapClick)="selectBolsin(b)"></map-marker>
+      </google-map>
+      <ng-template #mapsLoading>
+        <div style="height:100%;display:flex;align-items:center;justify-content:center;color:var(--color-text-muted);">
+          {{ mapsApiKey() ? 'Cargando mapa de Google Maps…' : 'Configura GOOGLE_MAPS_API_KEY para ver el mapa.' }}
+        </div>
+      </ng-template>
     </div>
   </div>
 

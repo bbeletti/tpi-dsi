@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { DataSource, IsNull } from 'typeorm';
 import { Bolsin } from '../entities/bolsin.entity';
 import { Empleado } from '../entities/empleado.entity';
@@ -52,7 +53,12 @@ class GpsTrackerSimulator {
 
 @Controller('api')
 export class SeguimientoController {
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(private readonly dataSource: DataSource, private readonly configService: ConfigService) {}
+
+  @Get('config/maps')
+  getMapsConfig() {
+    return { apiKey: this.configService.get<string>('GOOGLE_MAPS_API_KEY', '') };
+  }
 
   @Get('seguimiento/consultar')
   async consultarSeguimiento() {
@@ -147,12 +153,16 @@ export class SeguimientoController {
         origen: {
           id: bolsin.origen.id,
           nombre: bolsin.origen.obtenerNombre(),
-          codigo: bolsin.origen.codigo
+          codigo: bolsin.origen.codigo,
+          latitud: bolsin.origen.latitud,
+          longitud: bolsin.origen.longitud
         },
         destino: {
           id: bolsin.destino.id,
           nombre: bolsin.destino.obtenerNombre(),
-          codigo: bolsin.destino.codigo
+          codigo: bolsin.destino.codigo,
+          latitud: bolsin.destino.latitud,
+          longitud: bolsin.destino.longitud
         },
         latitud: lat,
         longitud: lng,
@@ -167,7 +177,9 @@ export class SeguimientoController {
       cmUsuario: {
         id: cmUsuario.id,
         nombre: cmUsuario.obtenerNombre(),
-        codigo: cmUsuario.codigo
+        codigo: cmUsuario.codigo,
+        latitud: cmUsuario.latitud,
+        longitud: cmUsuario.longitud
       },
       bolsines: result
     };

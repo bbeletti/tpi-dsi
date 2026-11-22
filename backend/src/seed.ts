@@ -56,6 +56,8 @@ async function bootstrap() {
           direccion: item.fields.direccion,
           email: item.fields.email,
           telefono: item.fields.telefono,
+          latitud: item.fields.latitud ?? null,
+          longitud: item.fields.longitud ?? null,
         });
       }
       console.log(`Se cargaron ${cms.length} registros en CM.`);

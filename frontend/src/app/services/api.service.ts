@@ -51,6 +51,10 @@ export class ApiService {
     return this.http.get<SeguimientoResponse>(`${this.apiUrl}/seguimiento/consultar`);
   }
 
+  getMapsConfig(): Observable<{ apiKey: string }> {
+    return this.http.get<{ apiKey: string }>(`${this.apiUrl}/config/maps`);
+  }
+
   notificarUbicacion(payload: {
     numeroBolsin: number;
     latitud: number;

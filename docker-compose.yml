@@ -18,7 +18,7 @@ services:
 
   backend:
     build:
-      context: .
+      context: ./backend
       target: development
     command: npm run start:dev
     env_file:
@@ -26,7 +26,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - .:/usr/src/app
+      - ./backend:/usr/src/app
       - /usr/src/app/node_modules
     depends_on:
       db:
@@ -36,13 +36,13 @@ services:
 
   seed:
     build:
-      context: .
+      context: ./backend
       target: development
     command: npm run seed
     env_file:
       - .env
     volumes:
-      - .:/usr/src/app
+      - ./backend:/usr/src/app
       - /usr/src/app/node_modules
     depends_on:
       db:

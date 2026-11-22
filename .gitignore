@@ -1,6 +1,6 @@
 # Compiled output
-/dist
-/node_modules
+dist/
+node_modules/
 
 # Logs
 logs
@@ -46,7 +46,7 @@ jspm_packages/
 .stylelintcache
 
 # dist/
-/dist
+dist/
 
 # coverage
-/coverage
+coverage/

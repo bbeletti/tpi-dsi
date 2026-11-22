@@ -21,7 +21,6 @@ ENV NODE_ENV=production
 COPY --from=dependencies /usr/src/app/node_modules ./node_modules
 COPY --from=builder /usr/src/app/dist ./dist
 COPY --from=builder /usr/src/app/package*.json ./
-COPY .env ./
 
 EXPOSE 8000
 CMD ["npm", "run", "start:prod"]

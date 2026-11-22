@@ -10,6 +10,16 @@ import { BolsinSeguimiento, CM } from '../models';
 /** Zoom máximo al encuadrar el recorrido de un bolsín seleccionado. */
 const ZOOM_MAXIMO_SELECCION = 11;
 
+/** Texto para comparar en los filtros: sin acentos, en minúsculas y sin espacios de más. */
+function normalizar(texto: string): string {
+  return texto
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 /** Recorrido de un bolsín partido en su posición actual. */
 interface Tramos {
   recorrido: google.maps.LatLngLiteral[];
@@ -142,14 +152,15 @@ export class Seguimiento implements OnInit, OnDestroy {
     });
   }
 
-  // Filtered list
+  // CU 36 - Paso 6: filtrar por número de precinto o CM destino.
+  // La búsqueda ignora mayúsculas y acentos: "cordoba" encuentra "Córdoba".
   get bolsinesFiltrados(): BolsinSeguimiento[] {
-    const precinto = this.filtroPrecinto().toLowerCase().trim();
-    const destino = this.filtroDestino().toLowerCase().trim();
+    const precinto = normalizar(this.filtroPrecinto());
+    const destino = normalizar(this.filtroDestino());
 
     return this.bolsines().filter(b => {
-      const matchPrecinto = !precinto || b.numeroPrecinto.toLowerCase().includes(precinto);
-      const matchDestino = !destino || b.destino.nombre.toLowerCase().includes(destino) || b.destino.codigo.toLowerCase().includes(destino);
+      const matchPrecinto = !precinto || normalizar(b.numeroPrecinto).includes(precinto);
+      const matchDestino = !destino || normalizar(b.destino.nombre).includes(destino) || normalizar(b.destino.codigo).includes(destino);
       return matchPrecinto && matchDestino;
     });
   }

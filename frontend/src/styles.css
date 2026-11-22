@@ -142,6 +142,7 @@ body {
   flex-direction: column;
   padding: 30px 20px;
   flex-shrink: 0;
+  transition: width 0.2s ease, padding 0.2s ease;
 }
 
 .sidebar-brand {
@@ -149,7 +150,61 @@ body {
   align-items: center;
   gap: 14px;
   margin-bottom: 40px;
-  padding-left: 8px;
+  padding: 0 0 0 8px;
+  background: none;
+  border: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sidebar-brand:hover .brand-logo {
+  box-shadow: var(--shadow-2);
+  transform: scale(1.04);
+}
+
+.sidebar-brand:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 4px;
+  border-radius: var(--radius-md);
+}
+
+.brand-logo {
+  flex-shrink: 0;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sidebar-brand h2,
+.nav-text,
+.theme-text {
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* Barra lateral contraída: solo íconos (no aplica a la barra superior de mobile) */
+@media (min-width: 769px) {
+  .app-sidebar.collapsed {
+    width: 88px;
+    padding: 30px 14px;
+  }
+
+  .app-sidebar.collapsed .sidebar-brand {
+    justify-content: center;
+    padding-left: 0;
+  }
+
+  .app-sidebar.collapsed .sidebar-brand h2,
+  .app-sidebar.collapsed .nav-text,
+  .app-sidebar.collapsed .theme-text {
+    display: none;
+  }
+
+  .app-sidebar.collapsed .nav-item,
+  .app-sidebar.collapsed .theme-toggle-btn {
+    justify-content: center;
+    padding: 12px;
+  }
 }
 
 .brand-logo {
@@ -430,8 +485,10 @@ body.light-theme .nav-item.active {
 }
 
 .panel-main .bolsin-list-card {
+  /* El listado ocupa todo el alto disponible del panel y scrollea adentro */
   flex: 1;
   min-height: 0;
+  max-height: none;
 }
 
 .bolsin-list-title {
@@ -808,7 +865,6 @@ body.light-theme .btn-primary:hover {
 
 /* List Items */
 .bolsin-list-card {
-  max-height: 200px;
   overflow-y: auto;
   margin-top: 8px;
 }
@@ -1079,11 +1135,6 @@ body.light-theme .theme-toggle-btn:hover {
     grid-column: span 1;
   }
 
-
-  /* List & details max-height optimizations */
-  .bolsin-list-card {
-    max-height: 240px !important;
-  }
 
   .detail-grid {
     grid-template-columns: 1fr;

@@ -55,7 +55,7 @@ export class Seguimiento implements OnInit, OnDestroy {
   private googleMap?: google.maps.Map;
   protected readonly mapsReady = signal(false);
   protected readonly mapsError = signal<string | null>(null);
-  protected readonly sinApiKey = this.mapsLoader.sinApiKey;
+  private readonly sinApiKey = this.mapsLoader.sinApiKey;
   private readonly mapId = signal('DEMO_MAP_ID');
   // Vista inicial: Argentina completa (después se encuadra según las CM y los bolsines)
   protected readonly center: google.maps.LatLngLiteral = { lat: -35, lng: -63.5 };

@@ -655,12 +655,6 @@ body.light-theme .nav-item.active {
   border-top-style: dashed;
 }
 
-.map-warning {
-  margin: 8px 0 0;
-  font-size: 11px;
-  color: var(--color-text-muted);
-}
-
 /* Markers de Google Maps (Advanced Markers): viven fuera de la vista de Angular */
 .gm-cm,
 .gm-bolsin {

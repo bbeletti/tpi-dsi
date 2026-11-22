@@ -46,20 +46,32 @@
             (zoomChanged)="onZoomChanged()"
             (mapClick)="clearSelection()"
           >
-            <!-- Recorrido CM origen → CM destino de cada bolsín -->
+            <!-- Ruta de cada bolsín: tramo recorrido (línea llena) y tramo restante (punteada) -->
             @for (b of bolsinesFiltrados; track b.id) {
-              @if (b.origen.latitud != null && b.destino.latitud != null) {
+              @let t = tramos()[b.id];
+              @let sel = selectedBolsin()?.id === b.id;
+              @if (t) {
                 <map-polyline
-                  [path]="[
-                    { lat: b.origen.latitud, lng: b.origen.longitud! },
-                    { lat: b.destino.latitud, lng: b.destino.longitud! }
-                  ]"
+                  [path]="t.recorrido"
                   [options]="{
-                    geodesic: true,
                     clickable: false,
-                    strokeColor: selectedBolsin()?.id === b.id ? '#ef4444' : '#3182ce',
-                    strokeOpacity: selectedBolsin()?.id === b.id ? 0.9 : 0.35,
-                    strokeWeight: selectedBolsin()?.id === b.id ? 4 : 2
+                    zIndex: sel ? 5 : 1,
+                    strokeColor: sel ? '#ef4444' : '#3182ce',
+                    strokeOpacity: sel ? 0.95 : 0.6,
+                    strokeWeight: sel ? 4 : 2.5
+                  }"
+                />
+                <map-polyline
+                  [path]="t.restante"
+                  [options]="{
+                    clickable: false,
+                    zIndex: sel ? 5 : 1,
+                    strokeOpacity: 0,
+                    icons: [{
+                      icon: { path: 'M 0,-1 0,1', strokeColor: sel ? '#ef4444' : '#3182ce', strokeOpacity: sel ? 0.9 : 0.55, scale: sel ? 3 : 2 },
+                      offset: '0',
+                      repeat: '12px'
+                    }]
                   }"
                 />
               }
@@ -90,9 +102,14 @@
         }
       }
     </div>
+    <div class="map-legend">
+      <span><span class="legend-line"></span> Recorrido</span>
+      <span><span class="legend-line dashed"></span> Restante hasta la CM destino</span>
+    </div>
     @if (sinApiKey()) {
       <p class="map-warning">
-        Sin API key de Google Maps: el mapa funciona en modo desarrollo. Configurá <code>GOOGLE_MAPS_API_KEY</code> en el <code>.env</code>.
+        Sin API key de Google Maps: el mapa funciona en modo desarrollo y los recorridos se dibujan en línea recta.
+        Configurá <code>GOOGLE_MAPS_API_KEY</code> en el <code>.env</code>.
       </p>
     }
   </div>

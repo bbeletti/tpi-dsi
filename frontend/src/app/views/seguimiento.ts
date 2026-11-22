@@ -7,6 +7,12 @@ import { GoogleMapsLoaderService } from '../services/google-maps-loader.service'
 import { ThemeService } from '../services/theme.service';
 import { BolsinSeguimiento, CM } from '../models';
 
+/** Recorrido de un bolsín partido en su posición actual. */
+interface Tramos {
+  recorrido: google.maps.LatLngLiteral[];
+  restante: google.maps.LatLngLiteral[];
+}
+
 @Component({
   selector: 'app-seguimiento',
   standalone: true,
@@ -58,6 +64,22 @@ export class Seguimiento implements OnInit, OnDestroy {
     fullscreenControl: true,
   }));
 
+  // Rutas reales (Google Routes API), cacheadas por bolsín y posición:
+  // solo se vuelven a pedir si el bolsín cambia de lugar.
+  private readonly rutas = signal<Record<string, Tramos>>({});
+  private readonly rutasPedidas = new Set<string>();
+
+  /** Tramos a dibujar por bolsín: la ruta real si ya está calculada, si no una línea recta. */
+  protected readonly tramos = computed(() => {
+    const rutas = this.rutas();
+    const res: Record<number, Tramos> = {};
+    for (const b of this.bolsines()) {
+      const tramos = rutas[this.claveRuta(b)] ?? this.tramosEnLineaRecta(b);
+      if (tramos) res[b.id] = tramos;
+    }
+    return res;
+  });
+
   // Elementos HTML de los markers, cacheados para que Angular no los recree en cada detección de cambios
   private markerContentCache = new Map<string, HTMLElement>();
   private refreshInterval: ReturnType<typeof setInterval> | null = null;
@@ -68,6 +90,7 @@ export class Seguimiento implements OnInit, OnDestroy {
       .then((config) => {
         this.mapId.set(config.googleMapsMapId);
         this.mapsReady.set(true);
+        this.calcularRutas();
       })
       .catch((err) => {
         console.error(err);
@@ -107,6 +130,7 @@ export class Seguimiento implements OnInit, OnDestroy {
           this.selectedBolsin.set(updated || null);
         }
         this.fitBoundsOnce();
+        this.calcularRutas();
       },
       error: (err) => console.error('Error al consultar seguimiento:', err)
     });
@@ -186,6 +210,77 @@ export class Seguimiento implements OnInit, OnDestroy {
     puntos.forEach((p) => bounds.extend(p));
     map.fitBounds(bounds, 48);
     this.boundsFitted = true;
+  }
+
+  // ---- Rutas ----
+
+  private claveRuta(b: BolsinSeguimiento): string {
+    return `${b.id}:${b.latitud},${b.longitud}`;
+  }
+
+  private tramosEnLineaRecta(b: BolsinSeguimiento): Tramos | null {
+    if (b.origen.latitud == null || b.origen.longitud == null || b.destino.latitud == null || b.destino.longitud == null) {
+      return null;
+    }
+    const posicion = { lat: b.latitud, lng: b.longitud };
+    return {
+      recorrido: [{ lat: b.origen.latitud, lng: b.origen.longitud }, posicion],
+      restante: [posicion, { lat: b.destino.latitud, lng: b.destino.longitud }],
+    };
+  }
+
+  /** Pide a Google Routes la ruta de cada bolsín que todavía no la tenga. Sin API key no se pide nada. */
+  private calcularRutas() {
+    if (!this.mapsReady() || this.sinApiKey()) return;
+
+    for (const b of this.bolsines()) {
+      const clave = this.claveRuta(b);
+      if (this.rutasPedidas.has(clave) || !this.tramosEnLineaRecta(b)) continue;
+      this.rutasPedidas.add(clave);
+      this.calcularRuta(b, clave);
+    }
+  }
+
+  private async calcularRuta(b: BolsinSeguimiento, clave: string) {
+    const posicion = { lat: b.latitud, lng: b.longitud };
+    try {
+      const { Route } = (await google.maps.importLibrary('routes')) as google.maps.RoutesLibrary;
+      // Una sola consulta por bolsín: origen → posición actual (punto de paso) → destino
+      const { routes } = await Route.computeRoutes({
+        origin: { lat: b.origen.latitud!, lng: b.origen.longitud! },
+        destination: { lat: b.destino.latitud!, lng: b.destino.longitud! },
+        intermediates: [{ location: posicion, via: true }],
+        travelMode: 'DRIVING',
+        polylineQuality: 'OVERVIEW',
+        language: 'es',
+        region: 'AR',
+        fields: ['path'],
+      });
+
+      const path = routes?.[0]?.path;
+      if (!path?.length) throw new Error('Respuesta sin recorrido');
+      const puntos = path.map((p) => ({ lat: p.lat, lng: p.lng }));
+
+      // La ruta pasa por la posición del bolsín: se corta en el punto más cercano
+      let corte = 0;
+      let distanciaMinima = Infinity;
+      puntos.forEach((p, i) => {
+        const d = (p.lat - posicion.lat) ** 2 + (p.lng - posicion.lng) ** 2;
+        if (d < distanciaMinima) {
+          distanciaMinima = d;
+          corte = i;
+        }
+      });
+
+      const tramos: Tramos = {
+        recorrido: [...puntos.slice(0, corte + 1), posicion],
+        restante: [posicion, ...puntos.slice(corte + 1)],
+      };
+      this.rutas.update((rutas) => ({ ...rutas, [clave]: tramos }));
+    } catch (err) {
+      // Se mantiene la línea recta como respaldo
+      console.warn(`No se pudo calcular la ruta del bolsín ${b.numeroBolsin}; se dibuja en línea recta.`, err);
+    }
   }
 
   cmsConUbicacion(): CM[] {

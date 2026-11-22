@@ -376,6 +376,30 @@ body.light-theme .nav-item.active {
   color: var(--color-text-muted);
 }
 
+.map-legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.map-legend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-line {
+  display: inline-block;
+  width: 22px;
+  border-top: 3px solid #3182ce;
+}
+
+.legend-line.dashed {
+  border-top-style: dashed;
+}
+
 .map-warning {
   margin: 8px 0 0;
   font-size: 11px;

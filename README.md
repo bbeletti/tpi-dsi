@@ -149,29 +149,33 @@ tpi-dsi/
 │   │           └── seguimiento.ts   # Control del plano y mapa interactivo
 │   └── Dockerfile                # Configuración de despliegue en contenedores
 │
-├── src/                          # Servidor de la aplicación (NestJS)
-│   ├── main.ts                   # Archivo de inicio del servidor
-│   ├── app.module.ts             # Módulo principal del servidor
-│   ├── app.controller.ts         # Controlador principal de prueba
-│   ├── seed.ts                   # Carga de datos de prueba en la base de datos
-│   └── bolsin/                   # Módulo específico de la lógica de bolsines
-│       ├── bolsin.module.ts      # Configuración del módulo y sus dependencias
-│       ├── controllers/
-│       │   ├── bolsines.controller.ts  # Rutas básicas para la consulta de bolsines
-│       │   └── seguimiento.controller.ts # Rutas de seguimiento y simulación de GPS
-│       ├── entities/             # Clases que representan las tablas de la base de datos
-│       │   ├── bolsin.entity.ts
-│       │   ├── cambio-estado-bolsin.entity.ts
-│       │   ├── cm.entity.ts
-│       │   ├── empleado.entity.ts
-│       │   ├── estado-bolsin.entity.ts
-│       │   ├── rol.entity.ts
-│       │   ├── sesion.entity.ts
-│       │   └── usuario.entity.ts
-│       └── fixtures/
-│           └── initial_data.json # Archivo con la información inicial de prueba
+├── backend/                      # Servidor de la aplicación (NestJS)
+│   ├── src/
+│   │   ├── main.ts                   # Archivo de inicio del servidor
+│   │   ├── app.module.ts             # Módulo principal del servidor
+│   │   ├── app.controller.ts         # Controlador principal de prueba
+│   │   ├── seed.ts                   # Carga de datos de prueba en la base de datos
+│   │   └── bolsin/                   # Módulo específico de la lógica de bolsines
+│   │       ├── bolsin.module.ts      # Configuración del módulo y sus dependencias
+│   │       ├── controllers/
+│   │       │   ├── bolsines.controller.ts  # Rutas básicas para la consulta de bolsines
+│   │       │   └── seguimiento.controller.ts # Rutas de seguimiento y simulación de GPS
+│   │       ├── entities/             # Clases que representan las tablas de la base de datos
+│   │       │   ├── bolsin.entity.ts
+│   │       │   ├── cambio-estado-bolsin.entity.ts
+│   │       │   ├── cm.entity.ts
+│   │       │   ├── empleado.entity.ts
+│   │       │   ├── estado-bolsin.entity.ts
+│   │       │   ├── rol.entity.ts
+│   │       │   ├── sesion.entity.ts
+│   │       │   └── usuario.entity.ts
+│   │       └── fixtures/
+│   │           └── initial_data.json # Archivo con la información inicial de prueba
+│   ├── test/                     # Pruebas end-to-end
+│   ├── package.json              # Dependencias y scripts del servidor
+│   └── Dockerfile                # Configuración de despliegue del servidor
 │
-├── Dockerfile                    # Configuración de despliegue del servidor
+├── docs/                         # Documentación (tecnologías, vista)
 ├── docker-compose.yml            # Coordinación de los contenedores
 └── .env                          # Variables de configuración del entorno
 ```

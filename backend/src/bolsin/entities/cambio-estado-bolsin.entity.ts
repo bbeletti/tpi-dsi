@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { EstadoBolsin } from './estado-bolsin.entity';
+import { Estado } from './estado.entity';
 import { Bolsin } from './bolsin.entity';
 
 @Entity('cambio_estado_bolsin')
@@ -14,18 +14,18 @@ export class CambioEstadoBolsin {
   fechaHoraFin: Date | null;
 
   @Column({ name: 'us_log', length: 150 })
-  UsLog: string;
+  usLog: string;
 
-  @ManyToOne(() => EstadoBolsin, { eager: true, onDelete: 'RESTRICT' })
+  @ManyToOne(() => Estado, { eager: true, onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'estado_id' })
-  estadoBolsin: EstadoBolsin;
+  estado: Estado;
 
-  @ManyToOne(() => Bolsin, (bolsin) => bolsin.cambiosEstado, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Bolsin, (bolsin) => bolsin.cambioEstado, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'bolsin_id' })
   bolsin: Bolsin;
 
   sosEnviado(): boolean {
-    return this.estadoBolsin ? this.estadoBolsin.sosEnviado() : false;
+    return this.estado ? this.estado.sosEnviado() : false;
   }
 
   sosActual(): boolean {

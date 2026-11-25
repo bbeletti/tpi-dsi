@@ -31,6 +31,10 @@ export class Empleado {
     return this.cm && cm && this.cm.id === cm.id;
   }
 
+  obtenerComisionMedica(): CM {
+    return this.cm;
+  }
+
   sosGCM(): boolean {
     return this.rol ? this.rol.esGCM() : false;
   }

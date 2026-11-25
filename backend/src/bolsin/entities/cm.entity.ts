@@ -20,6 +20,13 @@ export class CM {
   @Column({ length: 50 })
   telefono: string;
 
+  // Ubicación geográfica de la CM para mostrarla en el mapa (Google Maps)
+  @Column({ type: 'double precision', nullable: true })
+  latitud: number;
+
+  @Column({ type: 'double precision', nullable: true })
+  longitud: number;
+
   obtenerNombre(): string {
     return this.nombre;
   }

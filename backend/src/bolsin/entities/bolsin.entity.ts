@@ -1,9 +1,12 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { CM } from './cm.entity';
 import { CambioEstadoBolsin } from './cambio-estado-bolsin.entity';
+import { IAgregado } from '../iterator/i-agregado';
+import { IIterador } from '../iterator/i-iterador';
+import { IteradorCambioEstado } from '../iterator/iterador-cambio-estado';
 
 @Entity('bolsin')
-export class Bolsin {
+export class Bolsin implements IAgregado<CambioEstadoBolsin> {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -31,27 +34,44 @@ export class Bolsin {
   destino: CM;
 
   @OneToMany(() => CambioEstadoBolsin, (cambio) => cambio.bolsin, { cascade: true, eager: true })
-  cambiosEstado: CambioEstadoBolsin[];
+  cambioEstado: CambioEstadoBolsin[];
 
   esTuCMOrigen(cm: CM): boolean {
     return this.origen && cm && this.origen.id === cm.id;
   }
 
-  obtenerCMDestino(): CM {
-    return this.destino;
+  obtenerCMDestino(): string {
+    return this.destino.obtenerNombre();
   }
 
   obtenerNumeroBolsin(): number {
     return this.numeroBolsin;
   }
 
-  obtenerNroPrecinto(): string {
+  obtenerPrecinto(): string {
     return this.numeroPrecinto;
   }
 
+  // Patrón Iterator: Bolsin es el agregado de sus cambios de estado
+  crearIterador(elementos: CambioEstadoBolsin[]): IIterador<CambioEstadoBolsin> {
+    return new IteradorCambioEstado(elementos, []);
+  }
+
+  // Secuencia: recorre los cambios de estado con IteradorCambioEstado hasta
+  // encontrar el actual y le pregunta si es Enviado (actual -> Estado.sosEnviado()).
   sosEnviado(): boolean {
-    if (!this.cambiosEstado || this.cambiosEstado.length === 0) return false;
-    const cambioActual = this.cambiosEstado.find((c) => c.sosActual());
-    return cambioActual ? cambioActual.sosEnviado() : false;
+    const iterador = this.crearIterador(this.cambioEstado ?? []);
+    let enviado = false;
+
+    iterador.primero();
+    while (!iterador.haFinalizado()) {
+      const actual = iterador.elementoActual();
+      if (actual) {
+        enviado = actual.sosEnviado();
+      }
+      iterador.siguiente();
+    }
+
+    return enviado;
   }
 }

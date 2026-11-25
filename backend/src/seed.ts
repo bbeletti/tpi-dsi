@@ -23,6 +23,7 @@ async function bootstrap() {
     await queryRunner.connect();
 
     console.log('Limpiando tablas existentes...');
+    await queryRunner.query('TRUNCATE TABLE ruta RESTART IDENTITY CASCADE;');
     await queryRunner.query('TRUNCATE TABLE cambio_estado_bolsin RESTART IDENTITY CASCADE;');
     await queryRunner.query('TRUNCATE TABLE bolsin RESTART IDENTITY CASCADE;');
     await queryRunner.query('TRUNCATE TABLE sesion RESTART IDENTITY CASCADE;');
@@ -35,7 +36,7 @@ async function bootstrap() {
     await queryRunner.startTransaction();
 
     try {
-      // 1. EstadoBolsin
+      // 1. Estado
       const estados = findRecords('bolsin.estado_bolsin');
       for (const item of estados) {
         await queryRunner.manager.insert('estado_bolsin', {
@@ -44,7 +45,7 @@ async function bootstrap() {
           descripcion: item.fields.descripcion,
         });
       }
-      console.log(`Se cargaron ${estados.length} registros en EstadoBolsin.`);
+      console.log(`Se cargaron ${estados.length} registros en Estado.`);
 
       // 2. CM
       const cms = findRecords('bolsin.cm');
@@ -56,6 +57,8 @@ async function bootstrap() {
           direccion: item.fields.direccion,
           email: item.fields.email,
           telefono: item.fields.telefono,
+          latitud: item.fields.latitud,
+          longitud: item.fields.longitud,
         });
       }
       console.log(`Se cargaron ${cms.length} registros en CM.`);
@@ -131,12 +134,24 @@ async function bootstrap() {
           id: item.pk,
           fechaHoraInicio: new Date(item.fields.fecha_hora_inicio),
           fechaHoraFin: item.fields.fecha_hora_fin ? new Date(item.fields.fecha_hora_fin) : null,
-          UsLog: item.fields.us_log,
-          estadoBolsin: { id: item.fields.estado },
+          usLog: item.fields.us_log,
+          estado: { id: item.fields.estado },
           bolsin: { id: item.fields.bolsin },
         });
       }
       console.log(`Se cargaron ${cambios.length} registros en CambioEstadoBolsin.`);
+
+      // 9. Ruta (recorridos por carretera precalculados con scripts/generar-rutas.mjs)
+      const rutas = JSON.parse(fs.readFileSync(path.join(__dirname, 'bolsin', 'fixtures', 'rutas.json'), 'utf8'));
+      for (const ruta of rutas) {
+        await queryRunner.manager.insert('ruta', {
+          origen: { id: ruta.origen },
+          destino: { id: ruta.destino },
+          distanciaKm: ruta.distanciaKm,
+          recorrido: ruta.recorrido,
+        });
+      }
+      console.log(`Se cargaron ${rutas.length} registros en Ruta.`);
 
       await queryRunner.commitTransaction();
       console.log('¡Carga de datos iniciales del dominio Bolsín completada con éxito!');

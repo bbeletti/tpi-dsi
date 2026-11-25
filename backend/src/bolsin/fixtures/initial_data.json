@@ -24,14 +24,32 @@
     }
   },
   {
+    "model": "bolsin.estado_bolsin",
+    "pk": 4,
+    "fields": {
+      "nombre": "Cerrado",
+      "descripcion": "Bolsín cerrado con precinto, listo para que lo retire el correo"
+    }
+  },
+  {
+    "model": "bolsin.estado_bolsin",
+    "pk": 5,
+    "fields": {
+      "nombre": "De baja",
+      "descripcion": "Bolsín eliminado mientras estaba creado o cerrado"
+    }
+  },
+  {
     "model": "bolsin.cm",
     "pk": 1,
     "fields": {
       "codigo": "CM-01",
-      "nombre": "Comisión Médica Central",
-      "direccion": "Calle Falsa 123",
+      "nombre": "Comisión Médica Buenos Aires",
+      "direccion": "Av. de Mayo 1302, CABA",
       "email": "cm1@comision.gob.ar",
-      "telefono": "11-2222-3333"
+      "telefono": "11-4381-2200",
+      "latitud": -34.6037,
+      "longitud": -58.3816
     }
   },
   {
@@ -39,10 +57,12 @@
     "pk": 2,
     "fields": {
       "codigo": "CM-02",
-      "nombre": "Comisión Médica Norte",
-      "direccion": "Av. Siempre Viva 742",
+      "nombre": "Comisión Médica Córdoba",
+      "direccion": "Av. Colón 450, Córdoba",
       "email": "cm2@comision.gob.ar",
-      "telefono": "11-4444-5555"
+      "telefono": "351-422-1100",
+      "latitud": -31.4201,
+      "longitud": -64.1888
     }
   },
   {
@@ -50,10 +70,103 @@
     "pk": 3,
     "fields": {
       "codigo": "CM-03",
-      "nombre": "Comisión Médica Sur",
-      "direccion": "Colón 999",
+      "nombre": "Comisión Médica Rosario",
+      "direccion": "Córdoba 1452, Rosario, Santa Fe",
       "email": "cm3@comision.gob.ar",
-      "telefono": "11-6666-7777"
+      "telefono": "341-448-3300",
+      "latitud": -32.9442,
+      "longitud": -60.6505
+    }
+  },
+  {
+    "model": "bolsin.cm",
+    "pk": 4,
+    "fields": {
+      "codigo": "CM-04",
+      "nombre": "Comisión Médica Mendoza",
+      "direccion": "Av. San Martín 1150, Mendoza",
+      "email": "cm4@comision.gob.ar",
+      "telefono": "261-425-4400",
+      "latitud": -32.8895,
+      "longitud": -68.8458
+    }
+  },
+  {
+    "model": "bolsin.cm",
+    "pk": 5,
+    "fields": {
+      "codigo": "CM-05",
+      "nombre": "Comisión Médica Tucumán",
+      "direccion": "24 de Septiembre 650, San Miguel de Tucumán",
+      "email": "cm5@comision.gob.ar",
+      "telefono": "381-430-5500",
+      "latitud": -26.8083,
+      "longitud": -65.2176
+    }
+  },
+  {
+    "model": "bolsin.cm",
+    "pk": 6,
+    "fields": {
+      "codigo": "CM-06",
+      "nombre": "Comisión Médica Neuquén",
+      "direccion": "Av. Argentina 220, Neuquén",
+      "email": "cm6@comision.gob.ar",
+      "telefono": "299-443-6600",
+      "latitud": -38.9516,
+      "longitud": -68.0591
+    }
+  },
+  {
+    "model": "bolsin.cm",
+    "pk": 7,
+    "fields": {
+      "codigo": "CM-07",
+      "nombre": "Comisión Médica Mar del Plata",
+      "direccion": "Av. Independencia 2100, Mar del Plata, Buenos Aires",
+      "email": "cm7@comision.gob.ar",
+      "telefono": "223-491-7700",
+      "latitud": -38.0055,
+      "longitud": -57.5426
+    }
+  },
+  {
+    "model": "bolsin.cm",
+    "pk": 8,
+    "fields": {
+      "codigo": "CM-08",
+      "nombre": "Comisión Médica Salta",
+      "direccion": "Caseros 750, Salta",
+      "email": "cm8@comision.gob.ar",
+      "telefono": "387-421-8800",
+      "latitud": -24.7821,
+      "longitud": -65.4232
+    }
+  },
+  {
+    "model": "bolsin.cm",
+    "pk": 9,
+    "fields": {
+      "codigo": "CM-09",
+      "nombre": "Comisión Médica Posadas",
+      "direccion": "Colón 1800, Posadas, Misiones",
+      "email": "cm9@comision.gob.ar",
+      "telefono": "376-442-9900",
+      "latitud": -27.3671,
+      "longitud": -55.8961
+    }
+  },
+  {
+    "model": "bolsin.cm",
+    "pk": 10,
+    "fields": {
+      "codigo": "CM-10",
+      "nombre": "Comisión Médica Comodoro Rivadavia",
+      "direccion": "San Martín 400, Comodoro Rivadavia, Chubut",
+      "email": "cm10@comision.gob.ar",
+      "telefono": "297-446-1000",
+      "latitud": -45.8641,
+      "longitud": -67.4966
     }
   },
   {
@@ -92,6 +205,114 @@
       "legajo": "L-10002",
       "rol": 2,
       "cm": 2
+    }
+  },
+  {
+    "model": "bolsin.empleado",
+    "pk": 3,
+    "fields": {
+      "nombre": "Gerente",
+      "apellido": "Córdoba",
+      "email": "gcm.cordoba@comision.gob.ar",
+      "legajo": "L-20002",
+      "rol": 1,
+      "cm": 2
+    }
+  },
+  {
+    "model": "bolsin.empleado",
+    "pk": 4,
+    "fields": {
+      "nombre": "Gerente",
+      "apellido": "Rosario",
+      "email": "gcm.rosario@comision.gob.ar",
+      "legajo": "L-20003",
+      "rol": 1,
+      "cm": 3
+    }
+  },
+  {
+    "model": "bolsin.empleado",
+    "pk": 5,
+    "fields": {
+      "nombre": "Gerente",
+      "apellido": "Mendoza",
+      "email": "gcm.mendoza@comision.gob.ar",
+      "legajo": "L-20004",
+      "rol": 1,
+      "cm": 4
+    }
+  },
+  {
+    "model": "bolsin.empleado",
+    "pk": 6,
+    "fields": {
+      "nombre": "Gerente",
+      "apellido": "Tucumán",
+      "email": "gcm.tucuman@comision.gob.ar",
+      "legajo": "L-20005",
+      "rol": 1,
+      "cm": 5
+    }
+  },
+  {
+    "model": "bolsin.empleado",
+    "pk": 7,
+    "fields": {
+      "nombre": "Gerente",
+      "apellido": "Neuquén",
+      "email": "gcm.neuquen@comision.gob.ar",
+      "legajo": "L-20006",
+      "rol": 1,
+      "cm": 6
+    }
+  },
+  {
+    "model": "bolsin.empleado",
+    "pk": 8,
+    "fields": {
+      "nombre": "Gerente",
+      "apellido": "Mar del Plata",
+      "email": "gcm.mar.del.plata@comision.gob.ar",
+      "legajo": "L-20007",
+      "rol": 1,
+      "cm": 7
+    }
+  },
+  {
+    "model": "bolsin.empleado",
+    "pk": 9,
+    "fields": {
+      "nombre": "Gerente",
+      "apellido": "Salta",
+      "email": "gcm.salta@comision.gob.ar",
+      "legajo": "L-20008",
+      "rol": 1,
+      "cm": 8
+    }
+  },
+  {
+    "model": "bolsin.empleado",
+    "pk": 10,
+    "fields": {
+      "nombre": "Gerente",
+      "apellido": "Posadas",
+      "email": "gcm.posadas@comision.gob.ar",
+      "legajo": "L-20009",
+      "rol": 1,
+      "cm": 9
+    }
+  },
+  {
+    "model": "bolsin.empleado",
+    "pk": 11,
+    "fields": {
+      "nombre": "Gerente",
+      "apellido": "Comodoro Rivadavia",
+      "email": "gcm.comodoro.rivadavia@comision.gob.ar",
+      "legajo": "L-20010",
+      "rol": 1,
+      "cm": 10
     }
   },
   {
@@ -137,7 +358,7 @@
       "fecha_creacion": "2026-06-20T15:11:58.000Z",
       "numero_bolsin": 10101,
       "numero_precinto": "P-888777",
-      "peso": 2.50,
+      "peso": 2.5,
       "origen": 1,
       "destino": 2
     }
@@ -151,7 +372,7 @@
       "numero_precinto": "P-999111",
       "peso": 1.85,
       "origen": 1,
-      "destino": 2
+      "destino": 3
     }
   },
   {
@@ -161,9 +382,9 @@
       "fecha_creacion": "2026-06-20T13:00:00.000Z",
       "numero_bolsin": 30303,
       "numero_precinto": "P-111222",
-      "peso": 3.10,
+      "peso": 3.1,
       "origen": 2,
-      "destino": 3
+      "destino": 4
     }
   },
   {
@@ -174,8 +395,8 @@
       "numero_bolsin": 40404,
       "numero_precinto": "P-333444",
       "peso": 4.25,
-      "origen": 2,
-      "destino": 3
+      "origen": 3,
+      "destino": 5
     }
   },
   {
@@ -186,8 +407,104 @@
       "numero_bolsin": 50505,
       "numero_precinto": "P-555666",
       "peso": 0.95,
-      "origen": 3,
+      "origen": 7,
       "destino": 1
+    }
+  },
+  {
+    "model": "bolsin.bolsin",
+    "pk": 6,
+    "fields": {
+      "fecha_creacion": "2026-06-20T08:30:00.000Z",
+      "numero_bolsin": 60606,
+      "numero_precinto": "P-121314",
+      "peso": 2.1,
+      "origen": 1,
+      "destino": 4
+    }
+  },
+  {
+    "model": "bolsin.bolsin",
+    "pk": 7,
+    "fields": {
+      "fecha_creacion": "2026-06-20T09:15:00.000Z",
+      "numero_bolsin": 70707,
+      "numero_precinto": "P-151617",
+      "peso": 3.4,
+      "origen": 1,
+      "destino": 5
+    }
+  },
+  {
+    "model": "bolsin.bolsin",
+    "pk": 8,
+    "fields": {
+      "fecha_creacion": "2026-06-20T07:45:00.000Z",
+      "numero_bolsin": 80808,
+      "numero_precinto": "P-181920",
+      "peso": 1.2,
+      "origen": 1,
+      "destino": 6
+    }
+  },
+  {
+    "model": "bolsin.bolsin",
+    "pk": 9,
+    "fields": {
+      "fecha_creacion": "2026-06-20T13:20:00.000Z",
+      "numero_bolsin": 90909,
+      "numero_precinto": "P-212223",
+      "peso": 2.75,
+      "origen": 1,
+      "destino": 7
+    }
+  },
+  {
+    "model": "bolsin.bolsin",
+    "pk": 10,
+    "fields": {
+      "fecha_creacion": "2026-06-20T06:10:00.000Z",
+      "numero_bolsin": 11111,
+      "numero_precinto": "P-242526",
+      "peso": 3.9,
+      "origen": 1,
+      "destino": 8
+    }
+  },
+  {
+    "model": "bolsin.bolsin",
+    "pk": 11,
+    "fields": {
+      "fecha_creacion": "2026-06-20T10:40:00.000Z",
+      "numero_bolsin": 12121,
+      "numero_precinto": "P-272829",
+      "peso": 1.6,
+      "origen": 1,
+      "destino": 9
+    }
+  },
+  {
+    "model": "bolsin.bolsin",
+    "pk": 12,
+    "fields": {
+      "fecha_creacion": "2026-06-20T05:30:00.000Z",
+      "numero_bolsin": 13131,
+      "numero_precinto": "P-303132",
+      "peso": 2.3,
+      "origen": 1,
+      "destino": 10
+    }
+  },
+  {
+    "model": "bolsin.bolsin",
+    "pk": 13,
+    "fields": {
+      "fecha_creacion": "2026-06-20T05:30:00.000Z",
+      "numero_bolsin": 14141,
+      "numero_precinto": "P-333435",
+      "peso": 1.95,
+      "origen": 1,
+      "destino": 10
     }
   },
   {
@@ -298,6 +615,182 @@
       "us_log": "jperez",
       "estado": 2,
       "bolsin": 5
+    }
+  },
+  {
+    "model": "bolsin.cambio_estado_bolsin",
+    "pk": 11,
+    "fields": {
+      "fecha_hora_inicio": "2026-06-20T08:30:00.000Z",
+      "fecha_hora_fin": "2026-06-20T09:00:00.000Z",
+      "us_log": "jperez",
+      "estado": 1,
+      "bolsin": 6
+    }
+  },
+  {
+    "model": "bolsin.cambio_estado_bolsin",
+    "pk": 12,
+    "fields": {
+      "fecha_hora_inicio": "2026-06-20T09:00:00.000Z",
+      "fecha_hora_fin": null,
+      "us_log": "jperez",
+      "estado": 2,
+      "bolsin": 6
+    }
+  },
+  {
+    "model": "bolsin.cambio_estado_bolsin",
+    "pk": 13,
+    "fields": {
+      "fecha_hora_inicio": "2026-06-20T09:15:00.000Z",
+      "fecha_hora_fin": "2026-06-20T09:45:00.000Z",
+      "us_log": "jperez",
+      "estado": 1,
+      "bolsin": 7
+    }
+  },
+  {
+    "model": "bolsin.cambio_estado_bolsin",
+    "pk": 14,
+    "fields": {
+      "fecha_hora_inicio": "2026-06-20T09:45:00.000Z",
+      "fecha_hora_fin": null,
+      "us_log": "jperez",
+      "estado": 2,
+      "bolsin": 7
+    }
+  },
+  {
+    "model": "bolsin.cambio_estado_bolsin",
+    "pk": 15,
+    "fields": {
+      "fecha_hora_inicio": "2026-06-20T07:45:00.000Z",
+      "fecha_hora_fin": "2026-06-20T08:15:00.000Z",
+      "us_log": "jperez",
+      "estado": 1,
+      "bolsin": 8
+    }
+  },
+  {
+    "model": "bolsin.cambio_estado_bolsin",
+    "pk": 16,
+    "fields": {
+      "fecha_hora_inicio": "2026-06-20T08:15:00.000Z",
+      "fecha_hora_fin": null,
+      "us_log": "jperez",
+      "estado": 2,
+      "bolsin": 8
+    }
+  },
+  {
+    "model": "bolsin.cambio_estado_bolsin",
+    "pk": 17,
+    "fields": {
+      "fecha_hora_inicio": "2026-06-20T13:20:00.000Z",
+      "fecha_hora_fin": "2026-06-20T13:50:00.000Z",
+      "us_log": "jperez",
+      "estado": 1,
+      "bolsin": 9
+    }
+  },
+  {
+    "model": "bolsin.cambio_estado_bolsin",
+    "pk": 18,
+    "fields": {
+      "fecha_hora_inicio": "2026-06-20T13:50:00.000Z",
+      "fecha_hora_fin": null,
+      "us_log": "jperez",
+      "estado": 2,
+      "bolsin": 9
+    }
+  },
+  {
+    "model": "bolsin.cambio_estado_bolsin",
+    "pk": 19,
+    "fields": {
+      "fecha_hora_inicio": "2026-06-20T06:10:00.000Z",
+      "fecha_hora_fin": "2026-06-20T06:40:00.000Z",
+      "us_log": "jperez",
+      "estado": 1,
+      "bolsin": 10
+    }
+  },
+  {
+    "model": "bolsin.cambio_estado_bolsin",
+    "pk": 20,
+    "fields": {
+      "fecha_hora_inicio": "2026-06-20T06:40:00.000Z",
+      "fecha_hora_fin": null,
+      "us_log": "jperez",
+      "estado": 2,
+      "bolsin": 10
+    }
+  },
+  {
+    "model": "bolsin.cambio_estado_bolsin",
+    "pk": 21,
+    "fields": {
+      "fecha_hora_inicio": "2026-06-20T10:40:00.000Z",
+      "fecha_hora_fin": "2026-06-20T11:10:00.000Z",
+      "us_log": "jperez",
+      "estado": 1,
+      "bolsin": 11
+    }
+  },
+  {
+    "model": "bolsin.cambio_estado_bolsin",
+    "pk": 22,
+    "fields": {
+      "fecha_hora_inicio": "2026-06-20T11:10:00.000Z",
+      "fecha_hora_fin": null,
+      "us_log": "jperez",
+      "estado": 2,
+      "bolsin": 11
+    }
+  },
+  {
+    "model": "bolsin.cambio_estado_bolsin",
+    "pk": 23,
+    "fields": {
+      "fecha_hora_inicio": "2026-06-20T05:30:00.000Z",
+      "fecha_hora_fin": "2026-06-20T06:00:00.000Z",
+      "us_log": "jperez",
+      "estado": 1,
+      "bolsin": 12
+    }
+  },
+  {
+    "model": "bolsin.cambio_estado_bolsin",
+    "pk": 24,
+    "fields": {
+      "fecha_hora_inicio": "2026-06-20T06:00:00.000Z",
+      "fecha_hora_fin": null,
+      "us_log": "jperez",
+      "estado": 2,
+      "bolsin": 12
+    }
+  },
+  {
+    "model": "bolsin.cambio_estado_bolsin",
+    "pk": 25,
+    "fields": {
+      "fecha_hora_inicio": "2026-06-20T05:30:00.000Z",
+      "fecha_hora_fin": "2026-06-20T06:00:00.000Z",
+      "us_log": "jperez",
+      "estado": 1,
+      "bolsin": 13
+    }
+  },
+  {
+    "model": "bolsin.cambio_estado_bolsin",
+    "pk": 26,
+    "fields": {
+      "fecha_hora_inicio": "2026-06-20T06:00:00.000Z",
+      "fecha_hora_fin": null,
+      "us_log": "jperez",
+      "estado": 2,
+      "bolsin": 13
     }
   }
 ]

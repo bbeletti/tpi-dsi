@@ -638,6 +638,10 @@ body.light-theme .nav-item.active {
 }
 
 .legend-dot.cm {
+  background: #94a3b8;
+}
+
+.legend-dot.cm.destino {
   background: #3182ce;
 }
 
@@ -670,9 +674,15 @@ body.light-theme .nav-item.active {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #3182ce;
+  background: #94a3b8;
   border: 2px solid #fff;
-  box-shadow: 0 0 0 6px rgba(49, 130, 206, 0.25);
+  box-shadow: 0 0 0 4px rgba(148, 163, 184, 0.25);
+}
+
+/* CM destino de algún bolsín en tránsito: punto azul */
+.gm-cm.destino .gm-cm-dot {
+  background: #3182ce;
+  box-shadow: 0 0 0 6px rgba(49, 130, 206, 0.3);
 }
 
 .gm-bolsin-dot {

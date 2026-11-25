@@ -346,10 +346,15 @@ export class Seguimiento implements OnInit, OnDestroy {
     return this.cms().filter((cm) => cm.latitud != null && cm.longitud != null);
   }
 
-  cmContent(cm: CM): HTMLElement {
-    return this.cachedElement(`cm-${cm.id}`, () => {
+  /** true si la CM es destino de algún bolsín en tránsito del listado (punto azul). */
+  esCmDestino(cm: CM): boolean {
+    return this.bolsinesFiltrados.some((b) => b.destino.id === cm.id);
+  }
+
+  cmContent(cm: CM, esDestino: boolean): HTMLElement {
+    return this.cachedElement(`cm-${cm.id}-${esDestino}`, () => {
       const el = document.createElement('div');
-      el.className = 'gm-cm';
+      el.className = esDestino ? 'gm-cm destino' : 'gm-cm';
       el.innerHTML = '<span class="gm-cm-dot"></span><span class="gm-label"></span>';
       el.querySelector('.gm-label')!.textContent = cm.nombre;
       return el;

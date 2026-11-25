@@ -74,8 +74,8 @@
               <map-advanced-marker
                 [position]="{ lat: cm.latitud!, lng: cm.longitud! }"
                 [title]="cm.nombre + ' (' + cm.codigo + ')'"
-                [content]="cmContent(cm)"
-                [zIndex]="1"
+                [content]="cmContent(cm, esCmDestino(cm))"
+                [zIndex]="esCmDestino(cm) ? 2 : 1"
               />
             }
 
@@ -98,6 +98,7 @@
     <footer class="map-footer">
       <div class="map-legend">
         <span><span class="legend-dot cm"></span> Comisión médica</span>
+        <span><span class="legend-dot cm destino"></span> CM destino</span>
         <span><span class="legend-dot bolsin"></span> Bolsín</span>
         <span><span class="legend-line"></span> Recorrido</span>
         <span><span class="legend-line dashed"></span> Restante hasta la CM destino</span>

@@ -24,6 +24,22 @@
     }
   },
   {
+    "model": "bolsin.estado_bolsin",
+    "pk": 4,
+    "fields": {
+      "nombre": "Cerrado",
+      "descripcion": "Bolsín cerrado con precinto, listo para que lo retire el correo"
+    }
+  },
+  {
+    "model": "bolsin.estado_bolsin",
+    "pk": 5,
+    "fields": {
+      "nombre": "De baja",
+      "descripcion": "Bolsín eliminado mientras estaba creado o cerrado"
+    }
+  },
+  {
     "model": "bolsin.cm",
     "pk": 1,
     "fields": {
@@ -189,6 +205,114 @@
       "legajo": "L-10002",
       "rol": 2,
       "cm": 2
+    }
+  },
+  {
+    "model": "bolsin.empleado",
+    "pk": 3,
+    "fields": {
+      "nombre": "Gerente",
+      "apellido": "Córdoba",
+      "email": "gcm.cordoba@comision.gob.ar",
+      "legajo": "L-20002",
+      "rol": 1,
+      "cm": 2
+    }
+  },
+  {
+    "model": "bolsin.empleado",
+    "pk": 4,
+    "fields": {
+      "nombre": "Gerente",
+      "apellido": "Rosario",
+      "email": "gcm.rosario@comision.gob.ar",
+      "legajo": "L-20003",
+      "rol": 1,
+      "cm": 3
+    }
+  },
+  {
+    "model": "bolsin.empleado",
+    "pk": 5,
+    "fields": {
+      "nombre": "Gerente",
+      "apellido": "Mendoza",
+      "email": "gcm.mendoza@comision.gob.ar",
+      "legajo": "L-20004",
+      "rol": 1,
+      "cm": 4
+    }
+  },
+  {
+    "model": "bolsin.empleado",
+    "pk": 6,
+    "fields": {
+      "nombre": "Gerente",
+      "apellido": "Tucumán",
+      "email": "gcm.tucuman@comision.gob.ar",
+      "legajo": "L-20005",
+      "rol": 1,
+      "cm": 5
+    }
+  },
+  {
+    "model": "bolsin.empleado",
+    "pk": 7,
+    "fields": {
+      "nombre": "Gerente",
+      "apellido": "Neuquén",
+      "email": "gcm.neuquen@comision.gob.ar",
+      "legajo": "L-20006",
+      "rol": 1,
+      "cm": 6
+    }
+  },
+  {
+    "model": "bolsin.empleado",
+    "pk": 8,
+    "fields": {
+      "nombre": "Gerente",
+      "apellido": "Mar del Plata",
+      "email": "gcm.mar.del.plata@comision.gob.ar",
+      "legajo": "L-20007",
+      "rol": 1,
+      "cm": 7
+    }
+  },
+  {
+    "model": "bolsin.empleado",
+    "pk": 9,
+    "fields": {
+      "nombre": "Gerente",
+      "apellido": "Salta",
+      "email": "gcm.salta@comision.gob.ar",
+      "legajo": "L-20008",
+      "rol": 1,
+      "cm": 8
+    }
+  },
+  {
+    "model": "bolsin.empleado",
+    "pk": 10,
+    "fields": {
+      "nombre": "Gerente",
+      "apellido": "Posadas",
+      "email": "gcm.posadas@comision.gob.ar",
+      "legajo": "L-20009",
+      "rol": 1,
+      "cm": 9
+    }
+  },
+  {
+    "model": "bolsin.empleado",
+    "pk": 11,
+    "fields": {
+      "nombre": "Gerente",
+      "apellido": "Comodoro Rivadavia",
+      "email": "gcm.comodoro.rivadavia@comision.gob.ar",
+      "legajo": "L-20010",
+      "rol": 1,
+      "cm": 10
     }
   },
   {

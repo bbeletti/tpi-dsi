@@ -38,7 +38,7 @@ export interface Sesion {
   usuario?: Usuario;
 }
 
-export interface EstadoBolsin {
+export interface Estado {
   id: number;
   nombre: string;
   descripcion: string;
@@ -48,8 +48,8 @@ export interface CambioEstadoBolsin {
   id: number;
   fechaHoraInicio: string;
   fechaHoraFin: string | null;
-  UsLog: string;
-  estadoBolsin?: EstadoBolsin;
+  usLog: string;
+  estado: Estado;
   sosActual: boolean;
   sosEnviado: boolean;
 }
@@ -62,7 +62,7 @@ export interface Bolsin {
   peso: number;
   origen?: CM;
   destino?: CM;
-  cambiosEstado?: CambioEstadoBolsin[];
+  cambioEstado: CambioEstadoBolsin[];
   sosEnviado: boolean;
 }
 
@@ -78,7 +78,6 @@ export interface BolsinSeguimiento {
   longitud: number;
   fechaHoraActualizacion: string;
   trackerModel: string;
-  emailDestino: string;
   /** Recorrido por carretera precalculado, puntos [latitud, longitud] de CM origen a CM destino. */
   ruta: [number, number][] | null;
 }

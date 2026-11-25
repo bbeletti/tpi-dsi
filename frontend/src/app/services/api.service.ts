@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Bolsin, CM, Empleado, Usuario, Sesion, EstadoBolsin, Rol, SeguimientoResponse } from '../models';
+import { Bolsin, CM, Empleado, Usuario, Sesion, Estado, Rol, SeguimientoResponse } from '../models';
 
 @Injectable({
   providedIn: 'root'
@@ -37,8 +37,8 @@ export class ApiService {
   }
 
   // Estados
-  getEstados(): Observable<EstadoBolsin[]> {
-    return this.http.get<EstadoBolsin[]>(`${this.apiUrl}/estados`);
+  getEstados(): Observable<Estado[]> {
+    return this.http.get<Estado[]>(`${this.apiUrl}/estados`);
   }
 
   // Roles
@@ -51,13 +51,7 @@ export class ApiService {
     return this.http.get<SeguimientoResponse>(`${this.apiUrl}/seguimiento/consultar`);
   }
 
-  notificarUbicacion(payload: {
-    numeroBolsin: number;
-    latitud: number;
-    longitud: number;
-    fechaHoraActualizacion: string;
-    emailDestino: string;
-  }): Observable<{ success: boolean; message: string }> {
+  notificarUbicacion(payload: { numeroBolsin: number }): Observable<{ success: boolean; message: string }> {
     return this.http.post<{ success: boolean; message: string }>(`${this.apiUrl}/seguimiento/notificar`, payload);
   }
 }

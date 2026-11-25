@@ -210,13 +210,14 @@ export class Seguimiento implements OnInit, OnDestroy {
   }
 
   notificarGCM(bolsin: BolsinSeguimiento) {
-    const payload = {
-      numeroBolsin: bolsin.numeroBolsin,
-      latitud: bolsin.latitud,
-      longitud: bolsin.longitud,
-      fechaHoraActualizacion: bolsin.fechaHoraActualizacion,
-      emailDestino: bolsin.emailDestino
-    };
+    // CU 36 - Pasos 8 y 9: el sistema consulta si se desea enviar el correo y el EB confirma.
+    // A5: si el EB no confirma, no se envía nada.
+    const confirma = confirm(
+      `¿Enviar un correo al Gerente de ${bolsin.destino.nombre} informando la ubicación del bolsín ${bolsin.numeroBolsin}?`
+    );
+    if (!confirma) return;
+
+    const payload = { numeroBolsin: bolsin.numeroBolsin };
 
     this.api.notificarUbicacion(payload).subscribe({
       next: (res) => {
@@ -228,7 +229,7 @@ export class Seguimiento implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Error al enviar notificación:', err);
-        alert('No se pudo enviar la notificación por correo electrónico.');
+        alert(err?.error?.message ?? 'No se pudo enviar la notificación por correo electrónico.');
       }
     });
   }

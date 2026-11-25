@@ -198,10 +198,6 @@
             <span class="detail-label">Actualización</span>
             <span class="detail-value">{{ sel.fechaHoraActualizacion | date:'HH:mm:ss' }}</span>
           </div>
-          <div class="detail-item detail-wide">
-            <span class="detail-label">Email Gerente Destino</span>
-            <span class="detail-value detail-email">{{ sel.emailDestino }}</span>
-          </div>
         </div>
 
         <button class="btn btn-primary btn-notify" (click)="notificarGCM(sel)">

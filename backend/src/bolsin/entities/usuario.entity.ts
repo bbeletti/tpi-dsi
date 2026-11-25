@@ -22,6 +22,6 @@ export class Usuario {
   }
 
   obtenerComisionMedica(): CM | null {
-    return this.empleado ? this.empleado.cm : null;
+    return this.empleado ? this.empleado.obtenerComisionMedica() : null;
   }
 }

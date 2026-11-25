@@ -44,12 +44,12 @@ export class AppController {
       return {
         id: b.id,
         numeroBolsin: b.obtenerNumeroBolsin(),
-        numeroPrecinto: b.obtenerNroPrecinto(),
+        numeroPrecinto: b.obtenerPrecinto(),
         peso: b.peso,
         fechaCreacion: b.fechaCreacion,
         esTuCMOrigenDeOrigen: b.esTuCMOrigen(b.origen),
         esTuCMOrigenDeDestino: b.esTuCMOrigen(b.destino),
-        cmDestinoNombre: b.obtenerCMDestino()?.obtenerNombre(),
+        cmDestinoNombre: b.obtenerCMDestino(),
         sosEnviado: b.sosEnviado(),
       };
     });

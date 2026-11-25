@@ -5,14 +5,14 @@ import { CM } from './entities/cm.entity';
 import { Empleado } from './entities/empleado.entity';
 import { Usuario } from './entities/usuario.entity';
 import { Sesion } from './entities/sesion.entity';
-import { EstadoBolsin } from './entities/estado-bolsin.entity';
+import { Estado } from './entities/estado.entity';
 import { CambioEstadoBolsin } from './entities/cambio-estado-bolsin.entity';
 import { Bolsin } from './entities/bolsin.entity';
 import { Ruta } from './entities/ruta.entity';
 
 // Controllers
 import { BolsinesController } from './controllers/bolsines.controller';
-import { SeguimientoController } from './controllers/seguimiento.controller';
+import { GestorBolsin } from './gestores/gestor-bolsin';
 
 @Module({
   imports: [
@@ -22,7 +22,7 @@ import { SeguimientoController } from './controllers/seguimiento.controller';
       Empleado,
       Usuario,
       Sesion,
-      EstadoBolsin,
+      Estado,
       CambioEstadoBolsin,
       Bolsin,
       Ruta,
@@ -30,8 +30,8 @@ import { SeguimientoController } from './controllers/seguimiento.controller';
   ],
   controllers: [
     BolsinesController,
-    SeguimientoController,
   ],
+  providers: [GestorBolsin],
   exports: [TypeOrmModule],
 })
 export class BolsinModule {}

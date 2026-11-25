@@ -36,7 +36,7 @@ async function bootstrap() {
     await queryRunner.startTransaction();
 
     try {
-      // 1. EstadoBolsin
+      // 1. Estado
       const estados = findRecords('bolsin.estado_bolsin');
       for (const item of estados) {
         await queryRunner.manager.insert('estado_bolsin', {
@@ -45,7 +45,7 @@ async function bootstrap() {
           descripcion: item.fields.descripcion,
         });
       }
-      console.log(`Se cargaron ${estados.length} registros en EstadoBolsin.`);
+      console.log(`Se cargaron ${estados.length} registros en Estado.`);
 
       // 2. CM
       const cms = findRecords('bolsin.cm');
@@ -134,8 +134,8 @@ async function bootstrap() {
           id: item.pk,
           fechaHoraInicio: new Date(item.fields.fecha_hora_inicio),
           fechaHoraFin: item.fields.fecha_hora_fin ? new Date(item.fields.fecha_hora_fin) : null,
-          UsLog: item.fields.us_log,
-          estadoBolsin: { id: item.fields.estado },
+          usLog: item.fields.us_log,
+          estado: { id: item.fields.estado },
           bolsin: { id: item.fields.bolsin },
         });
       }

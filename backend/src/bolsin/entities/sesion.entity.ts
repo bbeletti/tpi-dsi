@@ -17,7 +17,7 @@ export class Sesion {
   @JoinColumn({ name: 'usuario_id' })
   usuario: Usuario;
 
-  buscarCmdeUsuarioLogueado(): CM | null {
+  buscarCMdeUsuarioLogueado(): CM | null {
     return this.usuario ? this.usuario.obtenerComisionMedica() : null;
   }
 }
